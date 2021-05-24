@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31313.79
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestTaskParserWPF", "TestTaskParserWPF\TestTaskParserWPF.csproj", "{894485FF-5D72-48FC-9EEB-6F10D1E2AD55}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{894485FF-5D72-48FC-9EEB-6F10D1E2AD55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{894485FF-5D72-48FC-9EEB-6F10D1E2AD55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{894485FF-5D72-48FC-9EEB-6F10D1E2AD55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{894485FF-5D72-48FC-9EEB-6F10D1E2AD55}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {84E8E049-2ECB-4F9C-AF65-7491595C504D}
+	EndGlobalSection
+EndGlobal

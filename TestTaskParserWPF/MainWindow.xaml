@@ -5,19 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TestTaskParserWPF"
         mc:Ignorable="d"
-        Title="TTParser" Height="521.333" Width="500">
+        Title="TTParser" Height="540" Width="500">
     <Grid>
-        <Button Content="Start" HorizontalAlignment="Left" Margin="10,55,0,0" VerticalAlignment="Top" Width="472" Click="Button_Click"/>
-        <RichTextBox Name="Log" HorizontalAlignment="Left" Height="400" Margin="10,80,0,0" VerticalAlignment="Top" Width="472">
-            <FlowDocument>
-                <Paragraph>
-                    <Run Text="Waiting..."/>
-                </Paragraph>
-            </FlowDocument>
-        </RichTextBox>
-        <CheckBox Content="DB connection" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <CheckBox Content="Site availability" HorizontalAlignment="Left" Margin="384,10,0,0" VerticalAlignment="Top"/>
-        <TextBox Name="Link" HorizontalAlignment="Left" Height="20" Margin="10,30,0,0" TextWrapping="Wrap" Text="https://www.ilcats.ru/" VerticalAlignment="Top" TextAlignment="Center" Width="472" IsEnabled="False"/>
-
+        <Button Name="ButtonStart" Content="Start" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Width="472" Click="ButtonStart_Click"/>
+        <RichTextBox Name="Log" HorizontalAlignment="Left" Height="400" Margin="10,105,0,0" VerticalAlignment="Top" Width="472"/>
+        <CheckBox Name="CheckBoxDBState" Content="DB connection" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" />
+        <CheckBox Name="CheckBoxSiteAval" Content="Site availability" HorizontalAlignment="Left" Margin="384,10,0,0" VerticalAlignment="Top" />
+        <TextBox Name="Link" HorizontalAlignment="Left" Height="20" Margin="10,55,0,0" TextWrapping="Wrap" VerticalAlignment="Top" TextAlignment="Center" Width="472"/>
+        <TextBox Name="SQLConnectionString" HorizontalAlignment="Left" Height="20" Margin="10,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="392"/>
+        <Button Name="ButtonCheckBD" Content="Check DB" HorizontalAlignment="Left" Margin="407,30,0,0" VerticalAlignment="Top" Width="75" Click="ButtonCheckBD_Click"/>
     </Grid>
 </Window>

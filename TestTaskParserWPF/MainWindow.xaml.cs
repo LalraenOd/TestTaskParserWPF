@@ -1,19 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Data.SqlClient;
+using System;
+using System.Net;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.IO;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Microsoft.Data.SqlClient;
 
 namespace TestTaskParserWPF
 {
@@ -22,12 +11,26 @@ namespace TestTaskParserWPF
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static MainWindow AppWindow;
+
         public MainWindow()
         {
             InitializeComponent();
-            SQLConnectionString.Text = $"Server=localhost\\SQLEXPRESS;Database=CarDetails;Trusted_Connection=True;";
-            Link.Text = "https://www.ilcats.ru/";
-            Log.AppendText("Waiting...");
+            AppWindow = this;
+            OnStartUp();
+        }
+
+        /// <summary>
+        /// Some startup things
+        /// </summary>
+        private void OnStartUp()
+        {
+            TextBoxSQLConnectionString.Text = @"Server=localhost\SQLEXPRESS; Database=CarDetails; Trusted_Connection=True;";
+            TextBoxLink.Text = "https://www.ilcats.ru/toyota/?function=getModels&market=EU";
+            Logger.LogMsg("Program started.\nPlease, check DB connection and site availability to start the process");
+            //ButtonStart.IsEnabled = false;
+            CheckBoxDBState.IsEnabled = false;
+            CheckBoxSiteAval.IsEnabled = false;
         }
 
         /// <summary>
@@ -35,56 +38,103 @@ namespace TestTaskParserWPF
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void ButtonCheckBD_Click(object sender, RoutedEventArgs e)
+        private void ButtonCheckBD_Click(object sender, RoutedEventArgs e)
         {
-            SQLConnectionString.IsEnabled = false;
-            using (SqlConnection sqlConnection = new SqlConnection(SQLConnectionString.Text))
+            TextBoxSQLConnectionString.IsEnabled = false;
+            using (SqlConnection sqlConnection = new SqlConnection(TextBoxSQLConnectionString.Text))
             {
                 try
                 {
-                    await sqlConnection.OpenAsync();
-                    MsgLogger("Подключение открыто");
-                    // Проверяем доступность базы данных
-                    MsgLogger("Свойства подключения:");
-                    MsgLogger($"Строка подключения: {sqlConnection.ConnectionString}");
-                    MsgLogger($"База данных: {sqlConnection.Database}");
-                    MsgLogger($"Сервер: {sqlConnection.DataSource}");
-                    MsgLogger($"Версия сервера: {sqlConnection.ServerVersion}");
-                    MsgLogger($"Состояние: {sqlConnection.State}");
-                    MsgLogger($"Workstationld: {sqlConnection.WorkstationId}");
+                    sqlConnection.Open();
+                    Logger.LogMsg($"DB connection opened.\n" +
+                        $"Connection properties:\n" +
+                        $"Connection string: {sqlConnection.ConnectionString}\n" +
+                        $"DB: {sqlConnection.Database}\n" +
+                        $"Server: { sqlConnection.DataSource}\n" +
+                        $"State: {sqlConnection.State}");
                     CheckBoxDBState.IsChecked = true;
                     sqlConnection.Close();
                 }
-                catch (Microsoft.Data.SqlClient.SqlException ex)
+                catch (SqlException ex)
                 {
                     MessageBox.Show($"Exception handled {ex}");
-                    MsgLogger(ex.ToString());
-                    MessageBox.Show("Error in connection string.\nPlease, check it and try again");
+                    Logger.LogMsg(ex.ToString());
+                    MessageBox.Show("Error in connection string.\nPlease, check it and try again. Exception logged.");
                     CheckBoxDBState.IsChecked = false;
                 }
             }
         }
 
-        private async void ButtonStart_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Checking webpage availablility
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ButtonCheckWebPage_Click(object sender, RoutedEventArgs e)
         {
-            Link.IsEnabled = false;
-            MsgLogger("Staring process...");
-            await URLParser(SQLConnectionString.Text, Link.Text);
-        }
-
-        private async Task URLParser(string DBConnectionString, string link)
-        {
-            MsgLogger($"Parsing {link}");
-            using (SqlConnection sqlConnection = new SqlConnection(DBConnectionString))
+            TextBoxLink.IsEnabled = false;
+            try
             {
-                await sqlConnection.OpenAsync();
+                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(TextBoxLink.Text);
+                request.Timeout = 3000;
+                request.AllowAutoRedirect = false; // find out if this site is up and don't follow a redirector
+                request.Method = "HEAD";
+                using (var response = request.GetResponse())
+                {
+                    CheckBoxSiteAval.IsChecked = true;
+                    Logger.LogMsg("Site is available.");
+                }
+            }
+            catch (Exception ex)
+            {
+                CheckBoxSiteAval.IsChecked = false;
+                MessageBox.Show("Site is not avilable. Exception logged.");
+                Logger.LogMsg(ex.ToString());
             }
         }
 
-        private void MsgLogger(string LogMsg)
+        /// <summary>
+        /// Checks if both checkboxes are checked and ready to start
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CheckBoxSiteAval_Checked(object sender, RoutedEventArgs e)
         {
-            Log.AppendText("\n" + LogMsg);
-            File.AppendAllText("log.txt", "\n" + LogMsg);
+            if (CheckBoxDBState.IsChecked == true && CheckBoxSiteAval.IsChecked == true)
+                ButtonStart.IsEnabled = true;
+            else
+                ButtonStart.IsEnabled = false;
+        }
+
+        /// <summary>
+        /// Checks if both checkboxes are checked and ready to start
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CheckBoxDBState_Checked(object sender, RoutedEventArgs e)
+        {
+            if (CheckBoxDBState.IsChecked == true && CheckBoxSiteAval.IsChecked == true)
+                ButtonStart.IsEnabled = true;
+            else
+                ButtonStart.IsEnabled = false;
+        }
+
+        /// <summary>
+        /// Starts parsing
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ButtonStart_Click(object sender, RoutedEventArgs e)
+        {
+            TextBoxSQLConnectionString.IsEnabled = false;
+            TextBoxLink.IsEnabled = false;
+            Logger.LogMsg("Staring process...");
+            WebPageWork.WebPageWorker(TextBoxSQLConnectionString.Text, TextBoxLink.Text);
+        }
+
+        private void RichTextBoxLog_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            RichTextBoxLog.ScrollToEnd();
         }
     }
 }

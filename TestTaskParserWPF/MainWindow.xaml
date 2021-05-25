@@ -5,15 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TestTaskParserWPF"
         mc:Ignorable="d"
-        Title="TTParser" Height="540" Width="500">
+        Title="TTParser" Height="550" Width="900">
     <Grid>
-        <Button Name="ButtonStart" Content="Start" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Width="472" Click="ButtonStart_Click"/>
-        <RichTextBox Name="RichTextBoxLog" HorizontalAlignment="Left" Margin="10,105,0,0" Width="472" TextChanged="RichTextBoxLog_TextChanged" Height="394" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto"/>
+        <Button Name="ButtonStart" Content="Start" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Width="872" Click="ButtonStart_Click"/>
+        <RichTextBox Name="RichTextBoxLog" HorizontalAlignment="Left" Margin="10,105,0,0" Width="872" TextChanged="RichTextBoxLog_TextChanged" Height="394" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto"/>
         <CheckBox Name="CheckBoxDBState" Content="DB connection" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Checked="CheckBoxDBState_Checked" />
-        <CheckBox Name="CheckBoxSiteAval" Content="Site availability" HorizontalAlignment="Left" Margin="384,10,0,0" VerticalAlignment="Top" Checked="CheckBoxSiteAval_Checked" />
-        <TextBox Name="TextBoxLink" HorizontalAlignment="Left" Height="20" Margin="10,55,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="364"/>
-        <TextBox Name="TextBoxSQLConnectionString" HorizontalAlignment="Left" Height="20" Margin="10,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="364"/>
-        <Button Name="ButtonCheckBD" Content="Check DB" HorizontalAlignment="Left" Margin="379,30,0,0" VerticalAlignment="Top" Width="103" Click="ButtonCheckBD_Click"/>
-        <Button Name="ButtonCheckWebPage" Content="Check WebPage" HorizontalAlignment="Left" Margin="379,55,0,0" VerticalAlignment="Top" Width="103" Click="ButtonCheckWebPage_Click"/>
+        <CheckBox Name="CheckBoxSiteAval" Content="Site availability" HorizontalAlignment="Left" Margin="784,10,0,0" VerticalAlignment="Top" Checked="CheckBoxSiteAval_Checked" />
+        <TextBox Name="TextBoxLink" HorizontalAlignment="Left" Height="20" Margin="10,55,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="764"/>
+        <TextBox Name="TextBoxSQLConnectionString" HorizontalAlignment="Left" Height="20" Margin="10,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="764"/>
+        <Button Name="ButtonCheckBD" Content="Check DB" HorizontalAlignment="Left" Margin="779,30,0,0" VerticalAlignment="Top" Width="103" Click="ButtonCheckBD_Click"/>
+        <Button Name="ButtonCheckWebPage" Content="Check WebPage" HorizontalAlignment="Left" Margin="779,55,0,0" VerticalAlignment="Top" Width="103" Click="ButtonCheckWebPage_Click"/>
     </Grid>
 </Window>

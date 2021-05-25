@@ -19,8 +19,8 @@ namespace TestTaskParserWPF
         /// <param name="url">URL to parse</param>
         internal static void WebPageWorker(string DBConnectionString, string url)
         {
-            var webPage = GetWebPage(url);
-            ParseModels(webPage);
+            //ParseModels(url);
+            PickingParser(url);
         }
 
         /// <summary>
@@ -42,17 +42,18 @@ namespace TestTaskParserWPF
         /// <summary>
         /// Parsing
         /// </summary>
-        /// <param name="html">html source</param>
-        private static void ParseModels(string html)
+        /// <param name="webPageHtml">html source</param>
+        private static void ParseModels(string url)
         {
+            var webPageHtml = GetWebPage(url);
             Logger.LogMsg("Started parser...");
             HtmlParser parser = new HtmlParser();
-            IHtmlDocument document = parser.ParseDocument(html);
+            IHtmlDocument htmlDocument = parser.ParseDocument(webPageHtml);
             //Searching for model name
-            IHtmlCollection<IElement> models = document.QuerySelectorAll("div.List > div.Header > div.name");
+            IHtmlCollection<IElement> models = htmlDocument.QuerySelectorAll("div.List > div.Header > div.name");
             foreach (var model in models)
             {
-                var modelName = model.TextContent;
+                string modelName = model.TextContent;
                 Logger.LogMsg($"FOUND MODEL: {modelName}");
                 //Going back to model <div List Class>
                 IElement modelParent = model.ParentElement.ParentElement;
@@ -64,14 +65,37 @@ namespace TestTaskParserWPF
                 for (int i = 0; i < childrenCount; i++)
                 {
                     string modelId = childrenElements[i].QuerySelector("div.List > div.List > div.id").TextContent;
-                    string modelIdHref = "https://www.ilcats.ru" 
-                        + childrenElements[i].QuerySelector("div.List > div.List > div.id > a").GetAttribute("href");
+                    string modelIdHref = childrenElements[i].QuerySelector("div.List > div.List > div.id > a").GetAttribute("href");
                     string modelDateRange = childrenElements[i].QuerySelector("div.List > div.List > div.dateRange").TextContent;
                     string modelPicking = childrenElements[i].QuerySelector("div.List > div.List > div.modelCode").TextContent;
                     Logger.LogMsg($"{modelName} {modelId} {modelDateRange} {modelPicking}");
-                    //Parsing car pickings
-                    Logger.LogMsg($"Parsing car pickings by link: {modelIdHref}");
-                    var pickingWebPage = GetWebPage(modelIdHref);
+                    PickingParser("https://www.ilcats.ru" + modelIdHref);
+                }
+            }
+        }
+
+        private static void PickingParser(string url)
+        {                    
+            //Parsing car pickings (tables)
+            Logger.LogMsg($"Parsing car pickings by link: {url}");
+            string pickingWebPage = GetWebPage(url);            
+            HtmlParser parser = new HtmlParser();
+            IHtmlDocument htmlDocument = parser.ParseDocument(pickingWebPage);
+            IElement firstTable = htmlDocument.QuerySelector("tbody");            
+            IHtmlCollection<IElement> pickingTable = firstTable.QuerySelectorAll("tbody > tr");
+            IElement[] pickingTableHeaders = pickingTable[0].QuerySelectorAll("th").ToArray();
+            MainWindow.AppWindow.RichTextBoxLog.AppendText("\n");
+            foreach (var header in pickingTableHeaders)
+            {
+                MainWindow.AppWindow.RichTextBoxLog.AppendText(header.TextContent + "\n");
+            }
+            for (int tableRow = 1; tableRow < pickingTable.Length; tableRow++)
+            {
+                MainWindow.AppWindow.RichTextBoxLog.AppendText($"Picking {tableRow} \t");
+                IElement[] cellElements = pickingTable[tableRow].QuerySelectorAll("td").ToArray();
+                foreach (var cellElement in cellElements)
+                {
+                    MainWindow.AppWindow.RichTextBoxLog.AppendText(cellElement.TextContent + "\n");
                 }
             }
         }

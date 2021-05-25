@@ -3,9 +3,9 @@ using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
 using Microsoft.Data.SqlClient;
 using System;
+using System.Linq;
 using System.Net;
 using System.Text;
-using System.Linq;
 
 namespace TestTaskParserWPF
 {
@@ -47,26 +47,22 @@ namespace TestTaskParserWPF
             Logger.LogMsg("Started parser...");
             HtmlParser parser = new HtmlParser();
             IHtmlDocument document = parser.ParseDocument(html);
-            var models = document.QuerySelectorAll("div.List")
-                ?.Children("div.Header")
-                ?.Children("div.name");
+            IHtmlCollection<IElement> models = document.QuerySelectorAll("div.List > div.Header > div.name");
             foreach (var model in models)
             {
                 var modelName = model.TextContent;
-                var modelsData = document.QuerySelectorAll("div.List")
-                    ?.Children("div.Header")
-                    ?.Children("div.name")
-                    ?.Where(div => div.TextContent == modelName)
-                    ?.Parent("div.Header")
-                    ?.Parent("div.List")
-                    ?.Children("div.List")
-                    ;
-                Logger.LogMsg(modelName);
-                foreach (var modelData in modelsData)
+                Logger.LogMsg($"FOUND MODEL: {modelName}");
+                IElement modelParent = model.ParentElement.ParentElement;
+                int childrenCount = modelParent.QuerySelector("div.List").ChildElementCount;
+                Logger.LogMsg($"CHILDREN FOUND: {childrenCount}");
+                var childrenElements = modelParent.QuerySelectorAll("div.List").Children("div.List").ToArray();
+                for (int i = 0; i < childrenCount; i++)
                 {
-                    Logger.LogMsg(modelData.TextContent);
+                    string modelId = childrenElements[i].QuerySelector("div.List > div.List > div.id").TextContent;
+                    string modelDateRange = childrenElements[i].QuerySelector("div.List > div.List > div.dateRange").TextContent;
+                    string modelCode = childrenElements[i].QuerySelector("div.List > div.List > div.modelCode").TextContent;
+                    Logger.LogMsg($"{modelName}\n{modelId}\n{modelDateRange}\n{modelCode}");
                 }
-                Logger.LogMsg("PART FINISHED");
             }
         }
 

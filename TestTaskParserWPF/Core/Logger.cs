@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace TestTaskParserWPF
 {
@@ -12,7 +14,10 @@ namespace TestTaskParserWPF
         internal static void LogMsg(string logMsg, string file = "log.txt")
         {
             logMsg = "\n" + DateTime.Now.ToString("G") + " " + logMsg;
-            MainWindow.AppWindow.RichTextBoxLog.AppendText(logMsg);
+            Dispatcher.CurrentDispatcher.Invoke((Action)(() =>
+            {
+                MainWindow.AppWindow.RichTextBoxLog.AppendText(logMsg);
+            }));
             File.AppendAllText(file, logMsg);
         }
     }

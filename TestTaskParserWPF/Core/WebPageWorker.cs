@@ -20,7 +20,7 @@ namespace TestTaskParserWPF
         internal static void WebPageWorker(string DBConnectionString, string url)
         {
             ParseModels(url);
-            //PickingParser(url);
+            PickingParser(url);
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace TestTaskParserWPF
                     ModelData modelData = new ModelData(modelId, modelName, modelDateRange, modelPickingCode);
                     Logger.LogMsg($"Writing {counter} model to db...");
                     DBWriterModelData(modelData);
-                    //PickingParser("https://www.ilcats.ru" + modelIdHref);
+                    PickingParser("https://www.ilcats.ru" + modelIdHref);
                 }
             }
         }
@@ -95,20 +95,25 @@ namespace TestTaskParserWPF
             foreach (var header in pickingTableHeaders)
             {
                 //Smth to do with headers
-                MainWindow.AppWindow.RichTextBoxLog.AppendText(header.TextContent + "\n");
+                //MainWindow.AppWindow.RichTextBoxLog.AppendText(header.TextContent + "\n");
             }
             for (int tableRow = 1; tableRow < pickingTable.Length; tableRow++)
             {
                 MainWindow.AppWindow.RichTextBoxLog.AppendText($"Picking {tableRow} \t");
                 IElement[] cellElements = pickingTable[tableRow].QuerySelectorAll("td").ToArray();
-                foreach (var cellElement in cellElements)
-                {
-                    //Smth to do with each table cell
-                    MainWindow.AppWindow.RichTextBoxLog.AppendText(cellElement.TextContent + "\n");
-                }
+                DbWriterPickingData(pickingTableHeaders, cellElements);
+                //foreach (var cellElement in cellElements)
+                //{
+                //    //Smth to do with each table cell
+                //    MainWindow.AppWindow.RichTextBoxLog.AppendText(cellElement.TextContent + "\n");
+                //}
             }
         }
 
+        /// <summary>
+        /// Writing ModelData to DB
+        /// </summary>
+        /// <param name="modelData"></param>
         private static void DBWriterModelData(ModelData modelData)
         {
             string DBConnectionString = MainWindow.AppWindow.TextBoxSQLConnectionString.Text;
@@ -117,8 +122,8 @@ namespace TestTaskParserWPF
                 sqlConnection.Open();
                 try
                 {
-                    string sqlExpresion = $"INSERT INTO ModelData (modelId, modelName, modelDateRange, modelPickingCode) " +
-                        $"VALUES ('{modelData.ModelId}','{modelData.ModelName}','{modelData.ModelDateRange}','{modelData.ModelPickingCode}')";
+                    string sqlExpresion = $"INSERT INTO ModelData (modelCode, modelName, modelDateRange, modelPickingCode) " +
+                        $"VALUES ('{modelData.ModelCode}','{modelData.ModelName}','{modelData.ModelDateRange}','{modelData.ModelPickingCode}')";
                     Logger.LogMsg($"\nsqlexp :{sqlExpresion}\n");
                     SqlCommand command = new SqlCommand(sqlExpresion, sqlConnection);
                     command.ExecuteNonQuery();
@@ -134,9 +139,52 @@ namespace TestTaskParserWPF
             }
         }
 
-        private static void DbWriterPickingData()
+        /// <summary>
+        /// 
+        /// </summary>
+        private static void DbWriterPickingData(IElement[] headers, IElement[] cellElements)
         {
-
+            string sqlExprInsert = "";
+            string sqlExprValues = "";
+            if (headers.Length == cellElements.Length)
+            {
+                for (int counter = 0; counter < headers.Length; counter++)
+                {
+                    switch (counter)
+                    {
+                        case 0:
+                            sqlExprInsert += "'DATE',";
+                            continue;
+                        case 1:
+                            sqlExprInsert += "'EQUIPMENT',";
+                            continue;
+                        default:
+                            sqlExprInsert += $"'{headers[counter].TextContent}',";
+                            break;
+                    }
+                    sqlExprValues += $"'{cellElements[counter].TextContent}',";
+                }
+            }
+            string sqlExpression = $"INSERT INTO ModelPicking ({sqlExprInsert}), VALUES ({sqlExprValues})";
+            string DBConnectionString = MainWindow.AppWindow.TextBoxSQLConnectionString.Text;
+            using (SqlConnection sqlConnection = new SqlConnection(DBConnectionString))
+            {
+                sqlConnection.Open();
+                try
+                {
+                    Logger.LogMsg($"\nsqlexp :{sqlExpression}\n");
+                    SqlCommand command = new SqlCommand(sqlExpression, sqlConnection);
+                    command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogMsg(ex.ToString());
+                }
+                finally
+                {
+                    sqlConnection.Close();
+                }
+            }
         }
     }
 }

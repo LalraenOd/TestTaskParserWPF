@@ -3,6 +3,8 @@ using System;
 using System.Net;
 using System.Windows;
 using System.Windows.Controls;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace TestTaskParserWPF
 {
@@ -130,6 +132,10 @@ namespace TestTaskParserWPF
             TextBoxLink.IsEnabled = false;
             Logger.LogMsg("Staring process...");
             WebPageWork.WebPageWorker(TextBoxSQLConnectionString.Text, TextBoxLink.Text);
+            //new Task(new Action(() =>
+            //{
+            //    WebPageWork.WebPageWorker(TextBoxSQLConnectionString.Text, TextBoxLink.Text);
+            //})).Start();
         }
 
         private void RichTextBoxLog_TextChanged(object sender, TextChangedEventArgs e)

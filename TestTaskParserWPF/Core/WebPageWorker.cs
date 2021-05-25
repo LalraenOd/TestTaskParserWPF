@@ -59,9 +59,10 @@ namespace TestTaskParserWPF
                 for (int i = 0; i < childrenCount; i++)
                 {
                     string modelId = childrenElements[i].QuerySelector("div.List > div.List > div.id").TextContent;
+                    string modelIdHref = childrenElements[i].QuerySelector("div.List > div.List > div.id > a").GetAttribute("href");
                     string modelDateRange = childrenElements[i].QuerySelector("div.List > div.List > div.dateRange").TextContent;
                     string modelCode = childrenElements[i].QuerySelector("div.List > div.List > div.modelCode").TextContent;
-                    Logger.LogMsg($"{modelName}\n{modelId}\n{modelDateRange}\n{modelCode}");
+                    Logger.LogMsg($"{modelName}\n{modelIdHref}\n{modelId}\n{modelDateRange}\n{modelCode}");
                 }
             }
         }

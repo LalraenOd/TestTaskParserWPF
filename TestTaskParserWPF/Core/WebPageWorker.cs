@@ -55,7 +55,7 @@ namespace TestTaskParserWPF
                 IElement modelParent = model.ParentElement.ParentElement;
                 int childrenCount = modelParent.QuerySelector("div.List").ChildElementCount;
                 Logger.LogMsg($"CHILDREN FOUND: {childrenCount}");
-                var childrenElements = modelParent.QuerySelectorAll("div.List").Children("div.List").ToArray();
+                IElement[] childrenElements = modelParent.QuerySelectorAll("div.List").Children("div.List").ToArray();
                 for (int i = 0; i < childrenCount; i++)
                 {
                     string modelId = childrenElements[i].QuerySelector("div.List > div.List > div.id").TextContent;

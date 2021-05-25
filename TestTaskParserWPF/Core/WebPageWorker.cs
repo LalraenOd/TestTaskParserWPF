@@ -6,6 +6,8 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
+using System.Windows.Threading;
 using TestTaskParserWPF.Core;
 
 namespace TestTaskParserWPF
@@ -17,10 +19,17 @@ namespace TestTaskParserWPF
         /// </summary>
         /// <param name="DBConnectionString">DataBase connection string</param>
         /// <param name="url">URL to parse</param>
-        internal static void WebPageWorker(string DBConnectionString, string url)
+        internal static void WebPageWorker()
         {
-            ParseModels(url);
-            PickingParser(url);
+            string url = "";
+            string dBConnectionString = "";
+            MainWindow.AppWindow.Dispatcher.Invoke((Action)(() =>
+            {
+                url = MainWindow.AppWindow.TextBoxLink.Text;
+                dBConnectionString = MainWindow.AppWindow.TextBoxSQLConnectionString.Text;
+            }));
+            ParseModels(url, dBConnectionString);
+            PickingParser(url, dBConnectionString);
         }
 
         /// <summary>
@@ -43,7 +52,7 @@ namespace TestTaskParserWPF
         /// Parsing model names
         /// </summary>
         /// <param name="url">Page link to parse model names</param>
-        private static void ParseModels(string url)
+        private static void ParseModels(string url, string dBConnectionString)
         {
             var webPageHtml = GetWebPage(url);
             Logger.LogMsg("Started parser...");
@@ -71,8 +80,8 @@ namespace TestTaskParserWPF
                     string modelPickingCode = childrenElements[counter].QuerySelector("div.List > div.List > div.modelCode").TextContent;
                     ModelData modelData = new ModelData(modelId, modelName, modelDateRange, modelPickingCode);
                     Logger.LogMsg($"Writing {counter} model to db...");
-                    DBWriterModelData(modelData);
-                    PickingParser("https://www.ilcats.ru" + modelIdHref);
+                    DBWriterModelData(modelData, dBConnectionString);
+                    PickingParser("https://www.ilcats.ru" + modelIdHref, dBConnectionString);
                 }
             }
         }
@@ -81,7 +90,7 @@ namespace TestTaskParserWPF
         /// Parsing each model pickings table
         /// </summary>
         /// <param name="url">Link to pickings webpage</param>
-        private static void PickingParser(string url)
+        private static void PickingParser(string url, string dBConnectionString)
         {
             //Parsing car pickings (tables)
             Logger.LogMsg($"Parsing car pickings by link: {url}");
@@ -91,7 +100,6 @@ namespace TestTaskParserWPF
             IElement firstTable = htmlDocument.QuerySelector("tbody");
             IHtmlCollection<IElement> pickingTable = firstTable.QuerySelectorAll("tbody > tr");
             IElement[] pickingTableHeaders = pickingTable[0].QuerySelectorAll("th").ToArray();
-            MainWindow.AppWindow.RichTextBoxLog.AppendText("\n");
             foreach (var header in pickingTableHeaders)
             {
                 //Smth to do with headers
@@ -99,9 +107,9 @@ namespace TestTaskParserWPF
             }
             for (int tableRow = 1; tableRow < pickingTable.Length; tableRow++)
             {
-                MainWindow.AppWindow.RichTextBoxLog.AppendText($"Picking {tableRow} \t");
+                Logger.LogMsg($"Picking {tableRow} \t");
                 IElement[] cellElements = pickingTable[tableRow].QuerySelectorAll("td").ToArray();
-                DbWriterPickingData(pickingTableHeaders, cellElements);
+                DbWriterPickingData(pickingTableHeaders, cellElements, dBConnectionString);
                 //foreach (var cellElement in cellElements)
                 //{
                 //    //Smth to do with each table cell
@@ -114,10 +122,9 @@ namespace TestTaskParserWPF
         /// Writing ModelData to DB
         /// </summary>
         /// <param name="modelData"></param>
-        private static void DBWriterModelData(ModelData modelData)
+        private static void DBWriterModelData(ModelData modelData, string dBConnectionString)
         {
-            string DBConnectionString = MainWindow.AppWindow.TextBoxSQLConnectionString.Text;
-            using (SqlConnection sqlConnection = new SqlConnection(DBConnectionString))
+            using (SqlConnection sqlConnection = new SqlConnection(dBConnectionString))
             {
                 sqlConnection.Open();
                 try
@@ -139,10 +146,7 @@ namespace TestTaskParserWPF
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private static void DbWriterPickingData(IElement[] headers, IElement[] cellElements)
+        private static void DbWriterPickingData(IElement[] headers, IElement[] cellElements, string dBConnectionString)
         {
             string sqlExprInsert = "";
             string sqlExprValues = "";
@@ -166,8 +170,7 @@ namespace TestTaskParserWPF
                 }
             }
             string sqlExpression = $"INSERT INTO ModelPicking ({sqlExprInsert}), VALUES ({sqlExprValues})";
-            string DBConnectionString = MainWindow.AppWindow.TextBoxSQLConnectionString.Text;
-            using (SqlConnection sqlConnection = new SqlConnection(DBConnectionString))
+            using (SqlConnection sqlConnection = new SqlConnection(dBConnectionString))
             {
                 sqlConnection.Open();
                 try
@@ -185,6 +188,7 @@ namespace TestTaskParserWPF
                     sqlConnection.Close();
                 }
             }
+            Thread.Sleep(10000);
         }
     }
 }

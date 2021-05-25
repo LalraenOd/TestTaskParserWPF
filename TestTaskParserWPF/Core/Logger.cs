@@ -14,7 +14,7 @@ namespace TestTaskParserWPF
         internal static void LogMsg(string logMsg, string file = "log.txt")
         {
             logMsg = "\n" + DateTime.Now.ToString("G") + " " + logMsg;
-            Dispatcher.CurrentDispatcher.Invoke((Action)(() =>
+            MainWindow.AppWindow.Dispatcher.Invoke((Action)(() =>
             {
                 MainWindow.AppWindow.RichTextBoxLog.AppendText(logMsg);
             }));

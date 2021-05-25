@@ -14,6 +14,7 @@ namespace TestTaskParserWPF
     public partial class MainWindow : Window
     {
         public static MainWindow AppWindow;
+        private Thread Thread;
 
         public MainWindow()
         {
@@ -131,16 +132,20 @@ namespace TestTaskParserWPF
             TextBoxSQLConnectionString.IsEnabled = false;
             TextBoxLink.IsEnabled = false;
             Logger.LogMsg("Staring process...");
-            WebPageWork.WebPageWorker(TextBoxSQLConnectionString.Text, TextBoxLink.Text);
-            //new Task(new Action(() =>
-            //{
-            //    WebPageWork.WebPageWorker(TextBoxSQLConnectionString.Text, TextBoxLink.Text);
-            //})).Start();
+            Thread = new Thread(new ThreadStart(WebPageWork.WebPageWorker));
+            Thread.Start();
+            //WebPageWork.WebPageWorker(TextBoxSQLConnectionString.Text, TextBoxLink.Text);
         }
 
         private void RichTextBoxLog_TextChanged(object sender, TextChangedEventArgs e)
         {
             RichTextBoxLog.ScrollToEnd();
+        }
+
+        private void ButtonStop_Click(object sender, RoutedEventArgs e)
+        {
+            Thread.Abort();
+            Logger.LogMsg("Proccess aborted");
         }
     }
 }

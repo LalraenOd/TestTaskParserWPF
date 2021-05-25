@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace TestTaskParserWPF
 {
@@ -47,22 +48,30 @@ namespace TestTaskParserWPF
             Logger.LogMsg("Started parser...");
             HtmlParser parser = new HtmlParser();
             IHtmlDocument document = parser.ParseDocument(html);
+            //Searching for model name
             IHtmlCollection<IElement> models = document.QuerySelectorAll("div.List > div.Header > div.name");
             foreach (var model in models)
             {
                 var modelName = model.TextContent;
                 Logger.LogMsg($"FOUND MODEL: {modelName}");
+                //Going back to model <div List Class>
                 IElement modelParent = model.ParentElement.ParentElement;
+                //Cheking number of model codes
                 int childrenCount = modelParent.QuerySelector("div.List").ChildElementCount;
                 Logger.LogMsg($"CHILDREN FOUND: {childrenCount}");
+                //Parsing child elements (model codes)
                 IElement[] childrenElements = modelParent.QuerySelectorAll("div.List").Children("div.List").ToArray();
                 for (int i = 0; i < childrenCount; i++)
                 {
                     string modelId = childrenElements[i].QuerySelector("div.List > div.List > div.id").TextContent;
-                    string modelIdHref = childrenElements[i].QuerySelector("div.List > div.List > div.id > a").GetAttribute("href");
+                    string modelIdHref = "https://www.ilcats.ru" 
+                        + childrenElements[i].QuerySelector("div.List > div.List > div.id > a").GetAttribute("href");
                     string modelDateRange = childrenElements[i].QuerySelector("div.List > div.List > div.dateRange").TextContent;
-                    string modelCode = childrenElements[i].QuerySelector("div.List > div.List > div.modelCode").TextContent;
-                    Logger.LogMsg($"{modelName}\n{modelIdHref}\n{modelId}\n{modelDateRange}\n{modelCode}");
+                    string modelPicking = childrenElements[i].QuerySelector("div.List > div.List > div.modelCode").TextContent;
+                    Logger.LogMsg($"{modelName} {modelId} {modelDateRange} {modelPicking}");
+                    //Parsing car pickings
+                    Logger.LogMsg($"Parsing car pickings by link: {modelIdHref}");
+                    var pickingWebPage = GetWebPage(modelIdHref);
                 }
             }
         }

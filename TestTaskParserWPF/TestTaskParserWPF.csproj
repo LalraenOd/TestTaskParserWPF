@@ -157,9 +157,6 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="log.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="DataBase\CarDetails.mdf" />
     <Content Include="DataBase\CarDetails_log.ldf" />
     <Content Include="DataBase\InitDb.sql" />

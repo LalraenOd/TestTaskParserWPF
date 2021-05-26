@@ -14,6 +14,8 @@ namespace TestTaskParserWPF
 {
     internal class WebPageWork
     {
+        public static string dBConnectionString { get; set; } = "";
+
         /// <summary>
         /// Main working link processing
         /// </summary>
@@ -22,13 +24,12 @@ namespace TestTaskParserWPF
         internal static void WebPageWorker()
         {
             string url = "";
-            string dBConnectionString = "";
             MainWindow.AppWindow.Dispatcher.Invoke((Action)(() =>
             {
                 url = MainWindow.AppWindow.TextBoxLink.Text;
                 dBConnectionString = MainWindow.AppWindow.TextBoxSQLConnectionString.Text;
             }));
-            ParseModels(url, dBConnectionString);
+            ParseModels(url);
         }
 
         /// <summary>
@@ -58,7 +59,7 @@ namespace TestTaskParserWPF
         /// Parsing model names
         /// </summary>
         /// <param name="url">Page link to parse model names</param>
-        private static void ParseModels(string url, string dBConnectionString)
+        private static void ParseModels(string url)
         {
             var webPageHtml = GetWebPage(url);
             Logger.LogMsg("Started parser...");
@@ -85,9 +86,8 @@ namespace TestTaskParserWPF
                     string modelDateRange = childrenElements[counter].QuerySelector("div.List > div.List > div.dateRange").TextContent;
                     string modelPickingCode = childrenElements[counter].QuerySelector("div.List > div.List > div.modelCode").TextContent;
                     ModelData modelData = new ModelData(modelId, modelName, modelDateRange, modelPickingCode);
-                    Logger.LogMsg($"Writing {counter+1} model to db...");
-                    DBWriterModelData(modelData, dBConnectionString);
-                    PickingParser("https://www.ilcats.ru" + modelIdHref, dBConnectionString);
+                    DBWriterModelData(modelData);
+                    PickingParser("https://www.ilcats.ru" + modelIdHref);
                 }
             }
         }
@@ -96,7 +96,7 @@ namespace TestTaskParserWPF
         /// Parsing each model pickings table
         /// </summary>
         /// <param name="url">Link to pickings webpage</param>
-        private static void PickingParser(string url, string dBConnectionString)
+        private static void PickingParser(string url)
         {
             //Parsing car pickings (tables)
             Logger.LogMsg($"Parsing car pickings by link: {url}");
@@ -113,7 +113,6 @@ namespace TestTaskParserWPF
             //}
             for (int tableRow = 1; tableRow < pickingTable.Length; tableRow++)
             {
-                Logger.LogMsg($"Parsing picking {tableRow+1} \t");
                 IElement[] cellElements = pickingTable[tableRow].QuerySelectorAll("td").ToArray();
                 DbWriterPickingData(pickingTableHeaders, cellElements, dBConnectionString);
                 var pickingGroupLink = "https://www.ilcats.ru" + cellElements[0].QuerySelector("div.modelCode > a").GetAttribute("href");
@@ -128,6 +127,7 @@ namespace TestTaskParserWPF
 
         private static void ParsePickingGroups(string pickingGroupLink)
         {
+            string pickingGroupPage = GetWebPage(pickingGroupLink);
 
             throw new NotImplementedException();
         }
@@ -136,7 +136,7 @@ namespace TestTaskParserWPF
         /// Writing ModelData to DB
         /// </summary>
         /// <param name="modelData"></param>
-        private static void DBWriterModelData(ModelData modelData, string dBConnectionString)
+        private static void DBWriterModelData(ModelData modelData)
         {
             using (SqlConnection sqlConnection = new SqlConnection(dBConnectionString))
             {

@@ -17,6 +17,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -31,7 +32,6 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -158,12 +158,12 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="DataBase\CarDetails.mdf" />
-    <Content Include="DataBase\CarDetails_log.ldf" />
-    <Content Include="DataBase\InitDb.sql" />
-    <Content Include="DataBase\SelectTop1000ModelData.sql" />
-    <Content Include="DataBase\SelectTop1000ModelPicking.sql" />
-    <Content Include="DataBase\Truncate.sql" />
+    <Content Include="DataBaseScripts\InitDb.sql" />
+    <Content Include="DataBaseScripts\SelectTop1000ModelData.sql" />
+    <Content Include="DataBaseScripts\SelectTop1000ModelPicking.sql" />
+    <Content Include="DataBaseScripts\SelectTop1000PickingGroups.sql" />
+    <Content Include="DataBaseScripts\SelectTop1000PickingSubGroups.sql" />
+    <Content Include="DataBaseScripts\Truncate.sql" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">

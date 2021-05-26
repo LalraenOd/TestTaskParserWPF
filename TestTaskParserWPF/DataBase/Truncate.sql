@@ -1,0 +1,3 @@
+USE CarDetails
+TRUNCATE TABLE ModelData
+TRUNCATE TABLE ModelPicking

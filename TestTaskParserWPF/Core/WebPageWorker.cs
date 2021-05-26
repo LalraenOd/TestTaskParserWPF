@@ -38,12 +38,19 @@ namespace TestTaskParserWPF
         /// <returns>Html source code in string</returns>
         private static string GetWebPage(string url)
         {
-            Logger.LogMsg($"Getting page: {url}");
-            using (WebClient webClient = new WebClient())
+            if (Misc.CheckWebPageAvailability(url))
             {
-                string webPage = "";
-                webClient.Encoding = Encoding.UTF8;
-                return webPage = webClient.DownloadString(url);
+                Logger.LogMsg($"Getting page: {url}");
+                using (WebClient webClient = new WebClient())
+                {
+                    string webPage = "";
+                    webClient.Encoding = Encoding.UTF8;
+                    return webPage = webClient.DownloadString(url);
+                }
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
 

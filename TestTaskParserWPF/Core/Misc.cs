@@ -30,23 +30,7 @@ namespace TestTaskParserWPF.Core
                 {
                     Logger.LogMsg("Site is available.");
                 }
-                //TODO Parse header to understand is site available
-                string webPage = "";
-                using (WebClient webClient = new WebClient())
-                {
-                    webClient.Encoding = Encoding.UTF8;
-                    webPage = webClient.DownloadString(url);
-                }
-                HtmlParser parser = new HtmlParser();
-                IHtmlDocument htmlDocument = parser.ParseDocument(webPage) ;
-                var header = htmlDocument.QuerySelector("div.Body > h1").TextContent;
-                if (header == "")
-                {
-                    Logger.LogMsg("HELP. SITE BLOCKED US.");
-                    return false;
-                }
-                else
-                    return true;
+                return true;
             }
             catch(ThreadAbortException)
             {
@@ -57,6 +41,35 @@ namespace TestTaskParserWPF.Core
                 Logger.LogMsg("Site is not avilable. Exception logged.\n" + ex.ToString());
                 return false;
             }
+        }
+
+        internal static bool CheckSiteBlock(string url)
+        {                
+            //TODO Parse header to understand is site available
+            string webPage = "";
+            using (WebClient webClient = new WebClient())
+            {
+                webClient.Encoding = Encoding.UTF8;
+                webPage = webClient.DownloadString(url);
+            }
+            HtmlParser parser = new HtmlParser();
+            IHtmlDocument htmlDocument = parser.ParseDocument(webPage);
+            var header = "";
+            try
+            {
+                header = htmlDocument.QuerySelector("div.Body > h1").TextContent;
+            }
+            catch (NullReferenceException)
+            {
+                return true;
+            }
+            if (header == "")
+            {
+                Logger.LogMsg("HELP. SITE BLOCKED US.");
+                return false;
+            }
+            else
+                return true;
         }
 
         /// <summary>

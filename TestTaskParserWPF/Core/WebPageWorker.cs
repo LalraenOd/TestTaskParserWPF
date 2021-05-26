@@ -86,7 +86,7 @@ namespace TestTaskParserWPF
                     string modelPickingCode = childrenElements[counter].QuerySelector("div.List > div.List > div.modelCode").TextContent;
                     ModelData modelData = new ModelData(modelCode, modelName, modelDateRange, modelPickingCode);
                     DBWriterModelData(modelData);
-                    PickingParser("https://www.ilcats.ru" + modelIdHref, modelData.ModelCode);
+                    ParseEquipment("https://www.ilcats.ru" + modelIdHref, modelData.ModelCode);
                 }
             }
         }
@@ -95,7 +95,7 @@ namespace TestTaskParserWPF
         /// Parsing each model pickings table
         /// </summary>
         /// <param name="url">Link to pickings webpage</param>
-        private static void PickingParser(string url, string modelCode)
+        private static void ParseEquipment(string url, string modelCode)
         {
             //Parsing car pickings (tables)
             string pickingWebPage = GetWebPage(url);
@@ -138,6 +138,11 @@ namespace TestTaskParserWPF
             }
         }
 
+        /// <summary>
+        /// Parisng picking groups
+        /// </summary>
+        /// <param name="pickingGroupLink">Link to group</param>
+        /// <param name="pickingEquipment">picking equipment name</param>
         private static void ParsePickingGroups(string pickingGroupLink, string pickingEquipment)
         {
             List<string> groupNames = new List<string>();
@@ -145,12 +150,50 @@ namespace TestTaskParserWPF
             string pickingGroupPage = GetWebPage(pickingGroupLink);
             HtmlParser parser = new HtmlParser();
             IHtmlDocument htmlDocument = parser.ParseDocument(pickingGroupPage);
-            IHtmlCollection<IElement> elements = htmlDocument.QuerySelectorAll("div.List > div.Column > div.List");
+            IHtmlCollection<IElement> elements = htmlDocument.QuerySelectorAll("div.List > div.List > div.name");
             foreach (var element in elements)
             {
-                groupNames.Add(element.QuerySelector("div.name").TextContent);
-                groupLinks.Add(element.QuerySelector("div.name > a").GetAttribute("href"));
+                groupNames.Add(element.TextContent);
+                groupLinks.Add(element.QuerySelector("a").GetAttribute("href"));
             }
+            DbWriterPickingGroups(groupNames, pickingEquipment);
+            ParsePickingSubGroups(groupNames, groupLinks);
+        }
+        
+        /// <summary>
+        /// Pasing picking subgroups
+        /// </summary>
+        /// <param name="groupNames">Group names</param>
+        /// <param name="groupLinks">Link to these groups</param>
+        private static void ParsePickingSubGroups(List<string> groupNames, List<string> groupLinks)
+        {
+            List<string> subGroupNames = new List<string>();
+            List<string> pickingLinks = new List<string>();
+            for (int groupCounter = 0; groupCounter < groupNames.Count; groupCounter++)
+            {
+                string pickingGroupPage = GetWebPage("https://www.ilcats.ru/" + groupLinks[groupCounter]);
+                HtmlParser parser = new HtmlParser();
+                IHtmlDocument htmlDocument = parser.ParseDocument(pickingGroupPage);
+                IHtmlCollection<IElement> elements = htmlDocument.QuerySelectorAll("div.Tiles > div.List > div.List > div.name");
+                foreach (var element in elements)
+                {
+                    subGroupNames.Add(element.TextContent);
+                    pickingLinks.Add("https://www.ilcats.ru/" + element.QuerySelector("a").GetAttribute("href"));
+                }
+                DbWriterPickingSubGroups(groupNames[groupCounter], subGroupNames);
+                ParsePicking(subGroupNames, pickingLinks);
+            }
+        }
+
+        /// <summary>
+        /// Parsing exact picking
+        /// </summary>
+        /// <param name="subGroupNames"></param>
+        /// <param name="subGroupLinks"></param>
+        private static void ParsePicking(List<string> subGroupNames, List<string> pickingLinks)
+        {
+            
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -166,7 +209,6 @@ namespace TestTaskParserWPF
                 {
                     string sqlExpression = $"INSERT INTO ModelData (MODELCODE, MODELNAME, MODELDATERANGE, MODELPICKINGCODE) " +
                         $"VALUES ('{modelData.ModelCode}','{modelData.ModelName}','{modelData.ModelDateRange}','{modelData.ModelPickingCode}')";
-                    Logger.LogMsg(sqlExpression);
                     SqlCommand command = new SqlCommand(sqlExpression, sqlConnection);
                     command.ExecuteNonQuery();
                 }
@@ -214,7 +256,6 @@ namespace TestTaskParserWPF
                 }
             }
             string sqlExpression = $"INSERT INTO ModelPicking ({sqlExprInsert}) VALUES ({sqlExprValues})";
-            Logger.LogMsg($"{sqlExpression}");
             //writing info to db using expression
             using (SqlConnection sqlConnection = new SqlConnection(dBConnectionString))
             {
@@ -231,6 +272,70 @@ namespace TestTaskParserWPF
                 finally
                 {
                     sqlConnection.Close();
+                }
+            }
+        }
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="groupNames"></param>
+        /// <param name="pickingEquipment"></param>
+        private static void DbWriterPickingGroups(List<string> groupNames, string pickingEquipment)
+        {
+            foreach (var groupName in groupNames)
+            {
+                using (SqlConnection sqlConnection = new SqlConnection(dBConnectionString))
+                {
+                    sqlConnection.Open();
+                    try
+                    {
+                        string sqlExpression = $"INSERT INTO [PickingGroups] ([PICKINGID], [PICKINGGROUPNAME]) " +
+                            $"VALUES ('{pickingEquipment}', '{groupName}')";
+                        SqlCommand command = new SqlCommand(sqlExpression, sqlConnection);
+                        command.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogMsg(ex.ToString());
+                        throw;
+                    }
+                    finally
+                    {
+                        sqlConnection.Close();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Writing sub group names
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="subGroupNames"></param>
+        private static void DbWriterPickingSubGroups(string groupName, List<string> subGroupNames)
+        {
+            foreach (var subGroupName in subGroupNames)
+            {
+                using (SqlConnection sqlConnection = new SqlConnection(dBConnectionString))
+                {
+                    sqlConnection.Open();
+                    try
+                    {
+                        string sqlExpression = $"INSERT INTO PickingSubGroups ([PICKINGSUBGROUPNAME], [PICKINGGROUPNAME]) " +
+                            $"VALUES ('{subGroupName}', '{groupName}')";
+                        SqlCommand command = new SqlCommand(sqlExpression, sqlConnection);
+                        command.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogMsg(ex.ToString());
+                        throw;
+                    }
+                    finally
+                    {
+                        sqlConnection.Close();
+                    }
                 }
             }
         }

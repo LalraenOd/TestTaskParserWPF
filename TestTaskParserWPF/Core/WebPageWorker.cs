@@ -28,35 +28,12 @@ namespace TestTaskParserWPF
         }
 
         /// <summary>
-        /// Gets webpage from source url using UTF-8 encoding
-        /// </summary>
-        /// <param name="url">URL link to parse</param>
-        /// <returns>Html source code in string</returns>
-        private static string GetWebPage(string url)
-        {
-            if (Misc.CheckWebPageAvailability(url))
-            {
-                Logger.LogMsg($"Getting page: {url}");
-                using (WebClient webClient = new WebClient())
-                {
-                    string webPage = "";
-                    webClient.Encoding = Encoding.UTF8;
-                    return webPage = webClient.DownloadString(url);
-                }
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        /// <summary>
         /// Parsing model names
         /// </summary>
         /// <param name="url">Page link to parse model names</param>
         private static void ParseModels(string url)
         {
-            var webPageHtml = GetWebPage(url);
+            var webPageHtml = Misc.GetWebPage(url);
             Logger.LogMsg("Started parser...");
             HtmlParser parser = new HtmlParser();
             IHtmlDocument htmlDocument = parser.ParseDocument(webPageHtml);
@@ -92,7 +69,7 @@ namespace TestTaskParserWPF
         private static void ParseEquipment(string url, string modelCode)
         {
             //Parsing car pickings (tables)
-            string pickingWebPage = GetWebPage(url);
+            string pickingWebPage = Misc.GetWebPage(url);
             HtmlParser parser = new HtmlParser();
             IHtmlDocument htmlDocument = parser.ParseDocument(pickingWebPage);
             IElement firstTable = htmlDocument.QuerySelector("tbody");
@@ -141,7 +118,7 @@ namespace TestTaskParserWPF
         {
             List<string> groupNames = new List<string>();
             List<string> groupLinks = new List<string>();
-            string pickingGroupPage = GetWebPage(pickingGroupLink);
+            string pickingGroupPage = Misc.GetWebPage(pickingGroupLink);
             HtmlParser parser = new HtmlParser();
             IHtmlDocument htmlDocument = parser.ParseDocument(pickingGroupPage);
             IHtmlCollection<IElement> elements = htmlDocument.QuerySelectorAll("div.List > div.List > div.name");
@@ -165,7 +142,7 @@ namespace TestTaskParserWPF
             List<string> pickingLinks = new List<string>();
             for (int groupCounter = 0; groupCounter < groupNames.Count; groupCounter++)
             {
-                string pickingGroupPage = GetWebPage("https://www.ilcats.ru/" + groupLinks[groupCounter]);
+                string pickingGroupPage = Misc.GetWebPage("https://www.ilcats.ru/" + groupLinks[groupCounter]);
                 HtmlParser parser = new HtmlParser();
                 IHtmlDocument htmlDocument = parser.ParseDocument(pickingGroupPage);
                 IHtmlCollection<IElement> elements = htmlDocument.QuerySelectorAll("div.Tiles > div.List > div.List > div.name");
@@ -199,7 +176,7 @@ namespace TestTaskParserWPF
                 //Creating new picking data
                 PickingData pickingData = new PickingData(pickingLink, imageName);
                 //Parsing
-                var webPageHtml = GetWebPage(pickingLink);
+                var webPageHtml = Misc.GetWebPage(pickingLink);
                 HtmlParser parser = new HtmlParser();
                 IHtmlDocument htmlDocument = parser.ParseDocument(webPageHtml);
                 //getting image

@@ -8,7 +8,7 @@
         Title="TTParser" Height="550" Width="900">
     <Grid>
         <Button Name="ButtonStart" Content="Start" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Width="872" Click="ButtonStart_Click" />
-        <RichTextBox Name="RichTextBoxLog" HorizontalAlignment="Left" Margin="10,133,0,0" Width="872" TextChanged="RichTextBoxLog_TextChanged" Height="366" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto" />
+        <RichTextBox Name="RichTextBoxLog" HorizontalAlignment="Left" Margin="10,133,0,0" Width="629" TextChanged="RichTextBoxLog_TextChanged" Height="366" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto" />
         <CheckBox Name="CheckBoxDBState" Content="DB connection" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Checked="CheckBoxDBState_Checked" />
         <CheckBox Name="CheckBoxSiteAval" Content="Site availability" HorizontalAlignment="Left" Margin="784,10,0,0" VerticalAlignment="Top" Checked="CheckBoxSiteAval_Checked" />
         <TextBox Name="TextBoxLink" HorizontalAlignment="Left" Height="20" Margin="10,55,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="764" />
@@ -16,6 +16,5 @@
         <Button Name="ButtonCheckBD" Content="Check DB" HorizontalAlignment="Left" Margin="779,30,0,0" VerticalAlignment="Top" Width="103" Click="ButtonCheckBD_Click" />
         <Button Name="ButtonCheckWebPage" Content="Check WebPage" HorizontalAlignment="Left" Margin="779,55,0,0" VerticalAlignment="Top" Width="103" Click="ButtonCheckWebPage_Click" />
         <Button Name="ButtonStop" Content="STOP" HorizontalAlignment="Left" Margin="10,105,0,0" VerticalAlignment="Top" Width="872" Click="ButtonStop_Click" />
-        <TextBlock x:Name="ThreadCounter" HorizontalAlignment="Left" Margin="400,9,0,0" TextWrapping="Wrap" Text="Current threads: " VerticalAlignment="Top" />
     </Grid>
 </Window>

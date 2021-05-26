@@ -13,6 +13,32 @@ namespace TestTaskParserWPF.Core
 {
     internal class Misc
     {
+
+        /// <summary>
+        /// Gets webpage from source url using UTF-8 encoding
+        /// </summary>
+        /// <param name="url">URL link to parse</param>
+        /// <returns>Html source code in string</returns>
+        internal static string GetWebPage(string url)
+        {
+            if (CheckWebPageAvailability(url))
+            {
+                Logger.LogMsg($"Getting page: {url}");
+                using (WebClient webClient = new WebClient())
+                {
+                    string webPage = "";
+                    WebProxy webProxy = new WebProxy(Proxier());
+                    webClient.Proxy = webProxy;
+                    webClient.Encoding = Encoding.UTF8;
+                    return webPage = webClient.DownloadString(url);
+                }
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         /// <summary>
         /// Checks if programm can access web page
         /// </summary>
@@ -101,33 +127,6 @@ namespace TestTaskParserWPF.Core
             }
         }
 
-        internal static void ThreadCounter()
-        {
-            while (true)
-            {
-                try
-                {
-                    MainWindow.AppWindow.Dispatcher.Invoke((Action)(() =>
-                    {
-                        MainWindow.AppWindow.ThreadCounter.Text = "Current threads: " + Process.GetCurrentProcess().Threads.Count.ToString();
-                    }));
-                }
-                catch (ThreadAbortException)
-                {
-                    continue;
-                }
-                catch (TaskCanceledException)
-                {
-                    continue;
-                }
-                catch (Exception ex)
-                {
-                    throw new NotImplementedException();
-                }
-                Thread.Sleep(1000);
-            }
-        }
-
         /// <summary>
         /// Saves image to images folder
         /// </summary>
@@ -145,9 +144,51 @@ namespace TestTaskParserWPF.Core
                 using (WebClient webClient = new WebClient())
                 {
                     webClient.DownloadFile("https:" + imageLink, imagePath);
-
                 }
             }
+        }
+   
+        internal static string Proxier()
+        {
+            //TODO maybe other file with only working proxies. start thread for proxy founding in background. and create exact file. 
+            //parser and page getter working only with real proxy
+            string workingProxy = null;
+            string proxyList = "https://sunny9577.github.io/proxy-scraper/proxies.txt";
+            if (!Directory.Exists("proxies"))
+            {
+                Directory.CreateDirectory("proxies");
+            }
+            using (WebClient webClient = new WebClient())
+            {
+                webClient.DownloadFile(proxyList, @"proxies\proxies.txt");
+            }
+            string[] proxies = File.ReadAllLines(@"proxies\proxies.txt");
+            foreach (var proxy in proxies)
+            {
+                workingProxy = proxy;
+                string proxyAddress = proxy.Split(':')[0];
+                int proxyPort = Int32.Parse(proxy.Split(':')[1]);
+                Logger.LogMsg($"Checing proxy: {proxy}");
+                try
+                {
+                    using (WebClient webClient = new WebClient())
+                    {
+                        string webPage = "";
+                        WebProxy webProxy = new WebProxy(proxyAddress, proxyPort);
+                        webClient.Proxy = webProxy;
+                        webClient.Encoding = Encoding.UTF8;
+                        webPage = webClient.DownloadString("https://www.ilcats.ru/");
+                        if (webPage != null)
+                            break;
+                    }
+                }
+                catch (WebException)
+                {
+                    continue;
+                }
+            }
+            Logger.LogMsg($"Proxy found: {workingProxy}");
+            return workingProxy;
         }
     }
 }

@@ -188,17 +188,15 @@ namespace TestTaskParserWPF
         {
             for (int pickingCounter = 0; pickingCounter < subGroupNames.Count; pickingCounter++)
             {
-                /*
-                 * https://www.ilcats.ru/toyota/?function=getParts&market=EU&model=671440&modification=LN51L-KRA&complectation=001&group=1&subgroup=0901
-                 */
                 var pickingLink = pickingLinks[pickingCounter];
                 //Generating image name
-                Regex regexModel = new Regex(@"model=(?<result>.+)&modification=");
-                Regex regexModification = new Regex(@"modification=(?<result>.+)&complectation=");
-                var modelName = regexModel.Match(pickingLink).Groups["result"].Value;
-                var modification = regexModification.Match(pickingLink).Groups["result"].Value;
-                var imageName = $"{modelName}_{modification}";
-                //Crating new picking data
+                Regex alldata = new Regex(@"model=(?<model>.+)&modification=(?<modification>.+)&complectation=(?<complectation>.+)&group=(?<group>.+)&subgroup=(?<subgroup>.+)");
+                var imageName = $"{alldata.Match(pickingLink).Groups["model"].Value}_" +
+                    $"{alldata.Match(pickingLink).Groups["modification"].Value}_" +
+                    $"{alldata.Match(pickingLink).Groups["complectation"].Value}_" +
+                    $"{alldata.Match(pickingLink).Groups["group"].Value}_" +
+                    $"{alldata.Match(pickingLink).Groups["subgroup"].Value}";
+                //Creating new picking data
                 PickingData pickingData = new PickingData(pickingLink, imageName);
                 //Parsing
                 var webPageHtml = GetWebPage(pickingLink);

@@ -128,6 +128,11 @@ namespace TestTaskParserWPF.Core
             }
         }
 
+        /// <summary>
+        /// Saves image to images folder
+        /// </summary>
+        /// <param name="imageLink">Link to the image to be saved</param>
+        /// <param name="imageName">Name of the file</param>
         internal static void SaveImage(string imageLink, string imageName)
         {
             var imagePath = "images\\" + imageName + ".jpg";
@@ -135,9 +140,13 @@ namespace TestTaskParserWPF.Core
             {
                 Directory.CreateDirectory("images");
             }
-            using (WebClient webClient = new WebClient())
+            if (!File.Exists(imagePath))
             {
-                webClient.DownloadFile(imageLink, imagePath);
+                using (WebClient webClient = new WebClient())
+                {
+                    webClient.DownloadFile("https:" + imageLink, imagePath);
+
+                }
             }
         }
     }

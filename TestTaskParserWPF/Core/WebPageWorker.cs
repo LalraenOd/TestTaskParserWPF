@@ -79,7 +79,7 @@ namespace TestTaskParserWPF
                     string modelDateRange = childrenElements[counter].QuerySelector("div.List > div.List > div.dateRange").TextContent;
                     string modelPickingCode = childrenElements[counter].QuerySelector("div.List > div.List > div.modelCode").TextContent;
                     ModelData modelData = new ModelData(modelCode, modelName, modelDateRange, modelPickingCode);
-                    DbWriter.DbWriterModelData(modelData);
+                    DbWriter.WriteModelData(modelData);
                     ParseEquipment("https://www.ilcats.ru" + modelIdHref, modelData.ModelCode);
                 }
             }
@@ -204,6 +204,10 @@ namespace TestTaskParserWPF
                 var webPageHtml = GetWebPage(pickingLink);
                 HtmlParser parser = new HtmlParser();
                 IHtmlDocument htmlDocument = parser.ParseDocument(webPageHtml);
+                //getting image
+                var imageLink = htmlDocument.QuerySelector("div.ifImage > div.Images > div.ImageArea > div.Image > img").GetAttribute("src");
+                Misc.SaveImage(imageLink, imageName);
+                //getting pickings details
                 IElement table = htmlDocument.QuerySelector("div.Info > table > tbody");
                 IHtmlCollection<IElement> pickings = table.QuerySelectorAll("tr");
                 for (int i = 1; i < pickings.Length; i++)

@@ -3,6 +3,7 @@ using AngleSharp.Html.Parser;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -21,7 +22,7 @@ namespace TestTaskParserWPF.Core
         {
             try
             {
-                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                 request.Timeout = 5000;
                 request.AllowAutoRedirect = false; // find out if this site is up and don't follow a redirector
                 request.Method = "HEAD";
@@ -124,6 +125,19 @@ namespace TestTaskParserWPF.Core
                     throw new NotImplementedException();
                 }
                 Thread.Sleep(1000);
+            }
+        }
+
+        internal static void SaveImage(string imageLink, string imageName)
+        {
+            var imagePath = "images\\" + imageName + ".jpg";
+            if (!Directory.Exists("images"))
+            {
+                Directory.CreateDirectory("images");
+            }
+            using (WebClient webClient = new WebClient())
+            {
+                webClient.DownloadFile(imageLink, imagePath);
             }
         }
     }

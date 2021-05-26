@@ -36,6 +36,8 @@ namespace TestTaskParserWPF
             ButtonStop.IsEnabled = false;
             CheckBoxDBState.IsEnabled = false;
             CheckBoxSiteAval.IsEnabled = false;
+            Thread = new Thread(new ThreadStart(Misc.ThreadCounter));
+            Thread.Start();
         }
 
         /// <summary>

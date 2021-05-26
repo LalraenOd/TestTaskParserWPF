@@ -3,6 +3,7 @@ using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
 using Microsoft.Data.SqlClient;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -75,19 +76,17 @@ namespace TestTaskParserWPF
                 //Cheking number of model codes
                 int childrenCount = modelParent.QuerySelector("div.List").ChildElementCount;
                 //Parsing child elements (model codes)
-                Logger.LogMsg($"Found {childrenCount} models on page.");
                 IElement[] childrenElements = modelParent.QuerySelectorAll("div.List").Children("div.List").ToArray();
                 for (int counter = 0; counter < childrenCount; counter++)
                 {
-                    Logger.LogMsg($"Parsing {counter+1} model");
                     //Smth to do with models data
-                    string modelId = childrenElements[counter].QuerySelector("div.List > div.List > div.id").TextContent;
+                    string modelCode = childrenElements[counter].QuerySelector("div.List > div.List > div.id").TextContent;
                     string modelIdHref = childrenElements[counter].QuerySelector("div.List > div.List > div.id > a").GetAttribute("href");
                     string modelDateRange = childrenElements[counter].QuerySelector("div.List > div.List > div.dateRange").TextContent;
                     string modelPickingCode = childrenElements[counter].QuerySelector("div.List > div.List > div.modelCode").TextContent;
-                    ModelData modelData = new ModelData(modelId, modelName, modelDateRange, modelPickingCode);
+                    ModelData modelData = new ModelData(modelCode, modelName, modelDateRange, modelPickingCode);
                     DBWriterModelData(modelData);
-                    PickingParser("https://www.ilcats.ru" + modelIdHref);
+                    PickingParser("https://www.ilcats.ru" + modelIdHref, modelData.ModelCode);
                 }
             }
         }
@@ -96,15 +95,29 @@ namespace TestTaskParserWPF
         /// Parsing each model pickings table
         /// </summary>
         /// <param name="url">Link to pickings webpage</param>
-        private static void PickingParser(string url)
+        private static void PickingParser(string url, string modelCode)
         {
             //Parsing car pickings (tables)
-            Logger.LogMsg($"Parsing car pickings by link: {url}");
             string pickingWebPage = GetWebPage(url);
             HtmlParser parser = new HtmlParser();
             IHtmlDocument htmlDocument = parser.ParseDocument(pickingWebPage);
             IElement firstTable = htmlDocument.QuerySelector("tbody");
-            IHtmlCollection<IElement> pickingTable = firstTable.QuerySelectorAll("tbody > tr");
+            IHtmlCollection<IElement> pickingTable;
+            try
+            {
+                pickingTable = firstTable.QuerySelectorAll("tbody > tr");
+            }
+            catch (NullReferenceException)
+            {
+                if (Misc.CheckWebPageAvailability(url))
+                {
+                    pickingTable = firstTable.QuerySelectorAll("tbody > tr");
+                }
+                else
+                {
+                    throw;
+                }
+            }
             IElement[] pickingTableHeaders = pickingTable[0].QuerySelectorAll("th").ToArray();
             //foreach (var header in pickingTableHeaders)
             //{
@@ -114,9 +127,9 @@ namespace TestTaskParserWPF
             for (int tableRow = 1; tableRow < pickingTable.Length; tableRow++)
             {
                 IElement[] cellElements = pickingTable[tableRow].QuerySelectorAll("td").ToArray();
-                DbWriterPickingData(pickingTableHeaders, cellElements, dBConnectionString);
+                DbWriterPickingData(pickingTableHeaders, cellElements, modelCode);
                 var pickingGroupLink = "https://www.ilcats.ru" + cellElements[0].QuerySelector("div.modelCode > a").GetAttribute("href");
-                ParsePickingGroups(pickingGroupLink);
+                ParsePickingGroups(pickingGroupLink, cellElements[0].TextContent);
                 //foreach (var cellElement in cellElements)
                 //{
                 //    //Smth to do with each table cell
@@ -125,11 +138,19 @@ namespace TestTaskParserWPF
             }
         }
 
-        private static void ParsePickingGroups(string pickingGroupLink)
+        private static void ParsePickingGroups(string pickingGroupLink, string pickingEquipment)
         {
+            List<string> groupNames = new List<string>();
+            List<string> groupLinks = new List<string>();
             string pickingGroupPage = GetWebPage(pickingGroupLink);
-
-            throw new NotImplementedException();
+            HtmlParser parser = new HtmlParser();
+            IHtmlDocument htmlDocument = parser.ParseDocument(pickingGroupPage);
+            IHtmlCollection<IElement> elements = htmlDocument.QuerySelectorAll("div.List > div.Column > div.List");
+            foreach (var element in elements)
+            {
+                groupNames.Add(element.QuerySelector("div.name").TextContent);
+                groupLinks.Add(element.QuerySelector("div.name > a").GetAttribute("href"));
+            }
         }
 
         /// <summary>
@@ -143,10 +164,10 @@ namespace TestTaskParserWPF
                 sqlConnection.Open();
                 try
                 {
-                    Logger.LogMsg("Writing picking to db...");
-                    string sqlExpresion = $"INSERT INTO ModelData (MODELCODE, MODELNAME, MODELDATERANGE, MODELPICKINGCODE) " +
+                    string sqlExpression = $"INSERT INTO ModelData (MODELCODE, MODELNAME, MODELDATERANGE, MODELPICKINGCODE) " +
                         $"VALUES ('{modelData.ModelCode}','{modelData.ModelName}','{modelData.ModelDateRange}','{modelData.ModelPickingCode}')";
-                    SqlCommand command = new SqlCommand(sqlExpresion, sqlConnection);
+                    Logger.LogMsg(sqlExpression);
+                    SqlCommand command = new SqlCommand(sqlExpression, sqlConnection);
                     command.ExecuteNonQuery();
                 }
                 catch (Exception ex)
@@ -167,10 +188,10 @@ namespace TestTaskParserWPF
         /// <param name="headers">table headers collection</param>
         /// <param name="cellElements">cell elements collection</param>
         /// <param name="dBConnectionString">db connection string</param>
-        private static void DbWriterPickingData(IElement[] headers, IElement[] cellElements, string dBConnectionString)
+        private static void DbWriterPickingData(IElement[] headers, IElement[] cellElements, string modelCode)
         {
-            string sqlExprInsert = "";
-            string sqlExprValues = "";
+            string sqlExprInsert = "[MODELCODE],";
+            string sqlExprValues = $"'{modelCode}',";
             if (headers.Length == cellElements.Length)
             {
                 //building sql expression for writing
@@ -193,6 +214,7 @@ namespace TestTaskParserWPF
                 }
             }
             string sqlExpression = $"INSERT INTO ModelPicking ({sqlExprInsert}) VALUES ({sqlExprValues})";
+            Logger.LogMsg($"{sqlExpression}");
             //writing info to db using expression
             using (SqlConnection sqlConnection = new SqlConnection(dBConnectionString))
             {

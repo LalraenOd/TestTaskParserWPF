@@ -1,6 +1,6 @@
 /****** Script for SelectTopNRows command from SSMS  ******/
-USE CarDetails
-SELECT TOP (1000) [MODELID]
+SELECT TOP (1000) [PICKINGID]
+      ,[MODELCODE]
       ,[DATE]
       ,[EQUIPMENT]
       ,[ATM,MTM]
@@ -20,6 +20,7 @@ SELECT TOP (1000) [MODELID]
       ,[DESTINATION 1]
       ,[DESTINATION 2]
       ,[DRIVER S LICENSE]
+      ,[DRIVER S POSITION]
       ,[EMISSION REGULATION]
       ,[ENGINE 1]
       ,[ENGINE 2]

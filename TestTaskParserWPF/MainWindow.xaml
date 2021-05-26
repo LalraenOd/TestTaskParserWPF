@@ -16,5 +16,6 @@
         <Button Name="ButtonCheckBD" Content="Check DB" HorizontalAlignment="Left" Margin="779,30,0,0" VerticalAlignment="Top" Width="103" Click="ButtonCheckBD_Click"/>
         <Button Name="ButtonCheckWebPage" Content="Check WebPage" HorizontalAlignment="Left" Margin="779,55,0,0" VerticalAlignment="Top" Width="103" Click="ButtonCheckWebPage_Click"/>
         <Button Name="ButtonStop" Content="STOP" HorizontalAlignment="Left" Margin="10,105,0,0" VerticalAlignment="Top" Width="872" Click="ButtonStop_Click"/>
+        <TextBlock x:Name="ThreadCounter" HorizontalAlignment="Left" Margin="400,9,0,0" TextWrapping="Wrap" Text="Current threads: " VerticalAlignment="Top"/>
     </Grid>
 </Window>

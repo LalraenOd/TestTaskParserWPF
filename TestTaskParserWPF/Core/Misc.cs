@@ -1,6 +1,13 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using AngleSharp.Dom;
+using AngleSharp.Html.Dom;
+using AngleSharp.Html.Parser;
+using Microsoft.Data.SqlClient;
 using System;
+using System.Diagnostics;
 using System.Net;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TestTaskParserWPF.Core
 {
@@ -16,14 +23,34 @@ namespace TestTaskParserWPF.Core
             try
             {
                 HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
-                request.Timeout = 3000;
+                request.Timeout = 5000;
                 request.AllowAutoRedirect = false; // find out if this site is up and don't follow a redirector
                 request.Method = "HEAD";
                 using (var response = request.GetResponse())
                 {
                     Logger.LogMsg("Site is available.");
                 }
-                return true;
+                //TODO Parse header to understand is site available
+                string webPage = "";
+                using (WebClient webClient = new WebClient())
+                {
+                    webClient.Encoding = Encoding.UTF8;
+                    webPage = webClient.DownloadString(url);
+                }
+                HtmlParser parser = new HtmlParser();
+                IHtmlDocument htmlDocument = parser.ParseDocument(webPage) ;
+                var header = htmlDocument.QuerySelector("div.Body > h1").TextContent;
+                if (header == "")
+                {
+                    Logger.LogMsg("HELP. SITE BLOCKED US.");
+                    return false;
+                }
+                else
+                    return true;
+            }
+            catch(ThreadAbortException)
+            {
+                return false;
             }
             catch (Exception ex)
             {
@@ -58,6 +85,33 @@ namespace TestTaskParserWPF.Core
                     Logger.LogMsg("Exception handled: " + ex.ToString());
                     return false;
                 }
+            }
+        }
+
+        internal static void ThreadCounter()
+        {
+            while (true)
+            {
+                try
+                {
+                    MainWindow.AppWindow.Dispatcher.Invoke((Action)(() =>
+                    {
+                    MainWindow.AppWindow.ThreadCounter.Text = "Current threads: " + Process.GetCurrentProcess().Threads.Count.ToString();
+                    }));
+                }
+                catch (ThreadAbortException)
+                {
+                    continue;
+                }
+                catch(TaskCanceledException)
+                {
+                    continue;
+                }
+                catch (Exception ex)
+                {
+                    throw new NotImplementedException();
+                }
+                Thread.Sleep(1000);
             }
         }
     }

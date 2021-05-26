@@ -29,7 +29,6 @@ namespace TestTaskParserWPF
                 dBConnectionString = MainWindow.AppWindow.TextBoxSQLConnectionString.Text;
             }));
             ParseModels(url, dBConnectionString);
-            PickingParser(url, dBConnectionString);
         }
 
         /// <summary>
@@ -130,7 +129,7 @@ namespace TestTaskParserWPF
                 try
                 {
                     Logger.LogMsg("Writing picking to db...");
-                    string sqlExpresion = $"INSERT INTO ModelData (modelCode, modelName, modelDateRange, modelPickingCode) " +
+                    string sqlExpresion = $"INSERT INTO ModelData (MODELCODE, MODELNAME, MODELDATERANGE, MODELPICKINGCODE) " +
                         $"VALUES ('{modelData.ModelCode}','{modelData.ModelName}','{modelData.ModelDateRange}','{modelData.ModelPickingCode}')";
                     SqlCommand command = new SqlCommand(sqlExpresion, sqlConnection);
                     command.ExecuteNonQuery();
@@ -145,24 +144,24 @@ namespace TestTaskParserWPF
                     sqlConnection.Close();
                 }
             }
-            Thread.Sleep(1000);
         }
 
         /// <summary>
-        /// 
+        /// Writing picking info to db
         /// </summary>
-        /// <param name="headers"></param>
-        /// <param name="cellElements"></param>
-        /// <param name="dBConnectionString"></param>
+        /// <param name="headers">table headers collection</param>
+        /// <param name="cellElements">cell elements collection</param>
+        /// <param name="dBConnectionString">db connection string</param>
         private static void DbWriterPickingData(IElement[] headers, IElement[] cellElements, string dBConnectionString)
         {
             string sqlExprInsert = "";
             string sqlExprValues = "";
             if (headers.Length == cellElements.Length)
             {
-                var counterMax = headers.Length;
+                //building sql expression for writing
                 for (int counter = 0; counter < headers.Length; counter++)
                 {
+                    //chaniging first and second column name to english manually
                     if (counter == 0)
                         sqlExprInsert += "[DATE],";
                     else if (counter == 1)
@@ -179,6 +178,7 @@ namespace TestTaskParserWPF
                 }
             }
             string sqlExpression = $"INSERT INTO ModelPicking ({sqlExprInsert}) VALUES ({sqlExprValues})";
+            //writing info to db using expression
             using (SqlConnection sqlConnection = new SqlConnection(dBConnectionString))
             {
                 sqlConnection.Open();
@@ -196,7 +196,6 @@ namespace TestTaskParserWPF
                     sqlConnection.Close();
                 }
             }
-            Thread.Sleep(1000);
         }
     }
 }

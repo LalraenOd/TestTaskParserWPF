@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Threading.Tasks;
 using System.Threading;
+using TestTaskParserWPF.Core;
 
 namespace TestTaskParserWPF
 {
@@ -32,6 +33,7 @@ namespace TestTaskParserWPF
             TextBoxLink.Text = "https://www.ilcats.ru/toyota/?function=getModels&market=EU";
             Logger.LogMsg("Program started.\nPlease, check DB connection and site availability to start the process");
             //ButtonStart.IsEnabled = false;
+            ButtonStop.IsEnabled = false;
             CheckBoxDBState.IsEnabled = false;
             CheckBoxSiteAval.IsEnabled = false;
         }
@@ -44,28 +46,15 @@ namespace TestTaskParserWPF
         private void ButtonCheckBD_Click(object sender, RoutedEventArgs e)
         {
             TextBoxSQLConnectionString.IsEnabled = false;
-            using (SqlConnection sqlConnection = new SqlConnection(TextBoxSQLConnectionString.Text))
+            if (Misc.CheckDbConnection(TextBoxSQLConnectionString.Text))
             {
-                try
-                {
-                    sqlConnection.Open();
-                    Logger.LogMsg($"DB connection opened.\n" +
-                        $"Connection properties:\n" +
-                        $"Connection string: {sqlConnection.ConnectionString}\n" +
-                        $"DB: {sqlConnection.Database}\n" +
-                        $"Server: { sqlConnection.DataSource}\n" +
-                        $"State: {sqlConnection.State}");
-                    CheckBoxDBState.IsChecked = true;
-                    sqlConnection.Close();
-                }
-                catch (SqlException ex)
-                {
-                    MessageBox.Show($"Exception handled {ex}");
-                    Logger.LogMsg(ex.ToString());
-                    MessageBox.Show("Error in connection string.\nPlease, check it and try again. Exception logged.");
-                    CheckBoxDBState.IsChecked = false;
-                }
+                CheckBoxDBState.IsChecked = true;
             }
+            else
+            {
+                MessageBox.Show("Error in connection string.\nPlease, check it and try again. Exception logged.");
+                CheckBoxDBState.IsChecked = false;
+            }            
         }
 
         /// <summary>
@@ -76,23 +65,14 @@ namespace TestTaskParserWPF
         private void ButtonCheckWebPage_Click(object sender, RoutedEventArgs e)
         {
             TextBoxLink.IsEnabled = false;
-            try
+            if (Misc.CheckWebPageAvailability(TextBoxLink.Text))
             {
-                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(TextBoxLink.Text);
-                request.Timeout = 3000;
-                request.AllowAutoRedirect = false; // find out if this site is up and don't follow a redirector
-                request.Method = "HEAD";
-                using (var response = request.GetResponse())
-                {
-                    CheckBoxSiteAval.IsChecked = true;
-                    Logger.LogMsg("Site is available.");
-                }
+                CheckBoxSiteAval.IsChecked = true;
             }
-            catch (Exception ex)
+            else
             {
                 CheckBoxSiteAval.IsChecked = false;
                 MessageBox.Show("Site is not avilable. Exception logged.");
-                Logger.LogMsg(ex.ToString());
             }
         }
 
@@ -131,6 +111,7 @@ namespace TestTaskParserWPF
         {
             TextBoxSQLConnectionString.IsEnabled = false;
             TextBoxLink.IsEnabled = false;
+            ButtonStop.IsEnabled = true;
             Logger.LogMsg("Staring process...");
             Thread = new Thread(new ThreadStart(WebPageWork.WebPageWorker));
             Thread.Start();
@@ -144,6 +125,7 @@ namespace TestTaskParserWPF
 
         private void ButtonStop_Click(object sender, RoutedEventArgs e)
         {
+            ButtonStart.IsEnabled = true;
             Thread.Abort();
             Logger.LogMsg("Proccess aborted");
         }

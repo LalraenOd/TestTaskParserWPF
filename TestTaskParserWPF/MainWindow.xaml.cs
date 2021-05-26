@@ -1,10 +1,6 @@
-﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Net;
+﻿using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Threading.Tasks;
-using System.Threading;
 using TestTaskParserWPF.Core;
 
 namespace TestTaskParserWPF
@@ -56,7 +52,7 @@ namespace TestTaskParserWPF
             {
                 MessageBox.Show("Error in connection string.\nPlease, check it and try again. Exception logged.");
                 CheckBoxDBState.IsChecked = false;
-            }            
+            }
         }
 
         /// <summary>

@@ -1,5 +1,4 @@
-﻿using AngleSharp.Dom;
-using AngleSharp.Html.Dom;
+﻿using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
 using Microsoft.Data.SqlClient;
 using System;
@@ -32,7 +31,7 @@ namespace TestTaskParserWPF.Core
                 }
                 return true;
             }
-            catch(ThreadAbortException)
+            catch (ThreadAbortException)
             {
                 return false;
             }
@@ -44,7 +43,7 @@ namespace TestTaskParserWPF.Core
         }
 
         internal static bool CheckSiteBlock(string url)
-        {                
+        {
             //TODO Parse header to understand is site available
             string webPage = "";
             using (WebClient webClient = new WebClient())
@@ -109,14 +108,14 @@ namespace TestTaskParserWPF.Core
                 {
                     MainWindow.AppWindow.Dispatcher.Invoke((Action)(() =>
                     {
-                    MainWindow.AppWindow.ThreadCounter.Text = "Current threads: " + Process.GetCurrentProcess().Threads.Count.ToString();
+                        MainWindow.AppWindow.ThreadCounter.Text = "Current threads: " + Process.GetCurrentProcess().Threads.Count.ToString();
                     }));
                 }
                 catch (ThreadAbortException)
                 {
                     continue;
                 }
-                catch(TaskCanceledException)
+                catch (TaskCanceledException)
                 {
                     continue;
                 }

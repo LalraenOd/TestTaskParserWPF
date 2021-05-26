@@ -7,8 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading;
-using System.Windows.Threading;
 using TestTaskParserWPF.Core;
 
 namespace TestTaskParserWPF
@@ -159,7 +157,7 @@ namespace TestTaskParserWPF
             DbWriterPickingGroups(groupNames, pickingEquipment);
             ParsePickingSubGroups(groupNames, groupLinks);
         }
-        
+
         /// <summary>
         /// Pasing picking subgroups
         /// </summary>
@@ -192,7 +190,6 @@ namespace TestTaskParserWPF
         /// <param name="subGroupLinks"></param>
         private static void ParsePicking(List<string> subGroupNames, List<string> pickingLinks)
         {
-            
             throw new NotImplementedException();
         }
 
@@ -244,7 +241,7 @@ namespace TestTaskParserWPF
                         sqlExprInsert += "[DATE],";
                     else if (counter == 1)
                         sqlExprInsert += "[EQUIPMENT],";
-                    else if (counter < headers.Length-1 && counter > 1)
+                    else if (counter < headers.Length - 1 && counter > 1)
                         sqlExprInsert += $"[{headers[counter].TextContent.Replace('\'', ' ')}],";
                     else if (counter == (headers.Length - 1))
                         sqlExprInsert += $"[{headers[counter].TextContent.Replace('\'', ' ')}]";
@@ -275,9 +272,9 @@ namespace TestTaskParserWPF
                 }
             }
         }
-    
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="groupNames"></param>
         /// <param name="pickingEquipment"></param>

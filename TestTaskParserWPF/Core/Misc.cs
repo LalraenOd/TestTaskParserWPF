@@ -166,15 +166,13 @@ namespace TestTaskParserWPF.Core
             foreach (var proxy in proxies)
             {
                 workingProxy = proxy;
-                string proxyAddress = proxy.Split(':')[0];
-                int proxyPort = Int32.Parse(proxy.Split(':')[1]);
                 Logger.LogMsg($"Checing proxy: {proxy}");
                 try
                 {
                     using (WebClient webClient = new WebClient())
                     {
                         string webPage = "";
-                        WebProxy webProxy = new WebProxy(proxyAddress, proxyPort);
+                        WebProxy webProxy = new WebProxy(proxy);
                         webClient.Proxy = webProxy;
                         webClient.Encoding = Encoding.UTF8;
                         webPage = webClient.DownloadString("https://www.ilcats.ru/");

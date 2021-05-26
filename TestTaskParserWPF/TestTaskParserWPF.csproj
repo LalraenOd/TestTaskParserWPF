@@ -110,8 +110,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Core\DbChecker.cs" />
+    <Compile Include="Core\DbWriter.cs" />
     <Compile Include="Core\Misc.cs" />
     <Compile Include="Core\ModelData.cs" />
+    <Compile Include="Core\PickingData.cs" />
     <Compile Include="Core\WebPageWorker.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

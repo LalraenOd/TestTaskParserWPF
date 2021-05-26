@@ -28,7 +28,8 @@ namespace TestTaskParserWPF
             TextBoxSQLConnectionString.Text = @"Server=localhost\SQLEXPRESS; Database=CarParcing; Trusted_Connection=True;";
             TextBoxLink.Text = "https://www.ilcats.ru/toyota/?function=getModels&market=EU";
             Logger.LogMsg("Program started.\nPlease, check DB connection and site availability to start the process");
-            //ButtonStart.IsEnabled = false;
+            DbWriter.dBConnectionString = TextBoxSQLConnectionString.Text;
+            ButtonStart.IsEnabled = false;
             ButtonStop.IsEnabled = false;
             CheckBoxDBState.IsEnabled = false;
             CheckBoxSiteAval.IsEnabled = false;

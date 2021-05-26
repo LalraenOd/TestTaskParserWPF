@@ -19,11 +19,5 @@ namespace TestTaskParserWPF.Core
         internal string ModelDateRange { get; set; }
 
         internal string ModelPickingCode { get; set; }
-
-        public override string ToString()
-        {
-            return $"Model name: {ModelName};\nModel Id: {ModelCode};\n" +
-                $"Model Date Range: {ModelDateRange};\nModel Picking code: {ModelPickingCode}";
-        }
     }
 }

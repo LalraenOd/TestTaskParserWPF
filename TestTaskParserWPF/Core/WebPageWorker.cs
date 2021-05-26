@@ -1,32 +1,28 @@
 ﻿using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
-using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using TestTaskParserWPF.Core;
 
 namespace TestTaskParserWPF
 {
     internal class WebPageWork
     {
-        public static string dBConnectionString { get; set; } = "";
-
         /// <summary>
-        /// Main working link processing
+        /// Main link processing
         /// </summary>
         /// <param name="DBConnectionString">DataBase connection string</param>
-        /// <param name="url">URL to parse</param>
         internal static void WebPageWorker()
         {
             string url = "";
             MainWindow.AppWindow.Dispatcher.Invoke((Action)(() =>
             {
                 url = MainWindow.AppWindow.TextBoxLink.Text;
-                dBConnectionString = MainWindow.AppWindow.TextBoxSQLConnectionString.Text;
             }));
             ParseModels(url);
         }
@@ -83,7 +79,7 @@ namespace TestTaskParserWPF
                     string modelDateRange = childrenElements[counter].QuerySelector("div.List > div.List > div.dateRange").TextContent;
                     string modelPickingCode = childrenElements[counter].QuerySelector("div.List > div.List > div.modelCode").TextContent;
                     ModelData modelData = new ModelData(modelCode, modelName, modelDateRange, modelPickingCode);
-                    DBWriterModelData(modelData);
+                    DbWriter.DbWriterModelData(modelData);
                     ParseEquipment("https://www.ilcats.ru" + modelIdHref, modelData.ModelCode);
                 }
             }
@@ -125,7 +121,7 @@ namespace TestTaskParserWPF
             for (int tableRow = 1; tableRow < pickingTable.Length; tableRow++)
             {
                 IElement[] cellElements = pickingTable[tableRow].QuerySelectorAll("td").ToArray();
-                DbWriterPickingData(pickingTableHeaders, cellElements, modelCode);
+                DbWriter.WritePickingData(pickingTableHeaders, cellElements, modelCode);
                 var pickingGroupLink = "https://www.ilcats.ru" + cellElements[0].QuerySelector("div.modelCode > a").GetAttribute("href");
                 ParsePickingGroups(pickingGroupLink, cellElements[0].TextContent);
                 //foreach (var cellElement in cellElements)
@@ -154,7 +150,7 @@ namespace TestTaskParserWPF
                 groupNames.Add(element.TextContent);
                 groupLinks.Add(element.QuerySelector("a").GetAttribute("href"));
             }
-            DbWriterPickingGroups(groupNames, pickingEquipment);
+            DbWriter.WritePickingGroups(groupNames, pickingEquipment);
             ParsePickingSubGroups(groupNames, groupLinks);
         }
 
@@ -178,7 +174,7 @@ namespace TestTaskParserWPF
                     subGroupNames.Add(element.TextContent);
                     pickingLinks.Add("https://www.ilcats.ru/" + element.QuerySelector("a").GetAttribute("href"));
                 }
-                DbWriterPickingSubGroups(groupNames[groupCounter], subGroupNames);
+                DbWriter.WriterPickingSubGroups(groupNames[groupCounter], subGroupNames);
                 ParsePicking(subGroupNames, pickingLinks);
             }
         }
@@ -190,150 +186,44 @@ namespace TestTaskParserWPF
         /// <param name="subGroupLinks"></param>
         private static void ParsePicking(List<string> subGroupNames, List<string> pickingLinks)
         {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Writing ModelData to DB
-        /// </summary>
-        /// <param name="modelData"></param>
-        private static void DBWriterModelData(ModelData modelData)
-        {
-            using (SqlConnection sqlConnection = new SqlConnection(dBConnectionString))
+            for (int pickingCounter = 0; pickingCounter < subGroupNames.Count; pickingCounter++)
             {
-                sqlConnection.Open();
-                try
+                /*
+                 * https://www.ilcats.ru/toyota/?function=getParts&market=EU&model=671440&modification=LN51L-KRA&complectation=001&group=1&subgroup=0901
+                 */
+                var pickingLink = pickingLinks[pickingCounter];
+                //Generating image name
+                Regex regexModel = new Regex(@"model=(?<result>.+)&modification=");
+                Regex regexModification = new Regex(@"modification=(?<result>.+)&complectation=");
+                var modelName = regexModel.Match(pickingLink).Groups["result"].Value;
+                var modification = regexModification.Match(pickingLink).Groups["result"].Value;
+                var imageName = $"{modelName}_{modification}";
+                //Crating new picking data
+                PickingData pickingData = new PickingData(pickingLink, imageName);
+                //Parsing
+                var webPageHtml = GetWebPage(pickingLink);
+                HtmlParser parser = new HtmlParser();
+                IHtmlDocument htmlDocument = parser.ParseDocument(webPageHtml);
+                IElement table = htmlDocument.QuerySelector("div.Info > table > tbody");
+                IHtmlCollection<IElement> pickings = table.QuerySelectorAll("tr");
+                for (int i = 1; i < pickings.Length; i++)
                 {
-                    string sqlExpression = $"INSERT INTO ModelData (MODELCODE, MODELNAME, MODELDATERANGE, MODELPICKINGCODE) " +
-                        $"VALUES ('{modelData.ModelCode}','{modelData.ModelName}','{modelData.ModelDateRange}','{modelData.ModelPickingCode}')";
-                    SqlCommand command = new SqlCommand(sqlExpression, sqlConnection);
-                    command.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogMsg(ex.ToString());
-                    throw;
-                }
-                finally
-                {
-                    sqlConnection.Close();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Writing picking info to db
-        /// </summary>
-        /// <param name="headers">table headers collection</param>
-        /// <param name="cellElements">cell elements collection</param>
-        /// <param name="dBConnectionString">db connection string</param>
-        private static void DbWriterPickingData(IElement[] headers, IElement[] cellElements, string modelCode)
-        {
-            string sqlExprInsert = "[MODELCODE],";
-            string sqlExprValues = $"'{modelCode}',";
-            if (headers.Length == cellElements.Length)
-            {
-                //building sql expression for writing
-                for (int counter = 0; counter < headers.Length; counter++)
-                {
-                    //chaniging first and second column name to english manually
-                    if (counter == 0)
-                        sqlExprInsert += "[DATE],";
-                    else if (counter == 1)
-                        sqlExprInsert += "[EQUIPMENT],";
-                    else if (counter < headers.Length - 1 && counter > 1)
-                        sqlExprInsert += $"[{headers[counter].TextContent.Replace('\'', ' ')}],";
-                    else if (counter == (headers.Length - 1))
-                        sqlExprInsert += $"[{headers[counter].TextContent.Replace('\'', ' ')}]";
-
-                    if (counter < cellElements.Length - 1)
-                        sqlExprValues += $"'{cellElements[counter].TextContent}',";
-                    else if (counter == (cellElements.Length - 1))
-                        sqlExprValues += $"'{cellElements[counter].TextContent}'";
-                }
-            }
-            string sqlExpression = $"INSERT INTO ModelPicking ({sqlExprInsert}) VALUES ({sqlExprValues})";
-            //writing info to db using expression
-            using (SqlConnection sqlConnection = new SqlConnection(dBConnectionString))
-            {
-                sqlConnection.Open();
-                try
-                {
-                    SqlCommand command = new SqlCommand(sqlExpression, sqlConnection);
-                    command.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogMsg(ex.ToString());
-                }
-                finally
-                {
-                    sqlConnection.Close();
-                }
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="groupNames"></param>
-        /// <param name="pickingEquipment"></param>
-        private static void DbWriterPickingGroups(List<string> groupNames, string pickingEquipment)
-        {
-            foreach (var groupName in groupNames)
-            {
-                using (SqlConnection sqlConnection = new SqlConnection(dBConnectionString))
-                {
-                    sqlConnection.Open();
-                    try
+                    var currentPicking = pickings[i];
+                    //check if tr element is table header or has data
+                    if (currentPicking.QuerySelector("th") != null)
                     {
-                        string sqlExpression = $"INSERT INTO [PickingGroups] ([PICKINGID], [PICKINGGROUPNAME]) " +
-                            $"VALUES ('{pickingEquipment}', '{groupName}')";
-                        SqlCommand command = new SqlCommand(sqlExpression, sqlConnection);
-                        command.ExecuteNonQuery();
+                        pickingData.Tree = currentPicking.TextContent;
+                        pickingData.TreeCode = currentPicking.GetAttribute("data-id");
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Logger.LogMsg(ex.ToString());
-                        throw;
-                    }
-                    finally
-                    {
-                        sqlConnection.Close();
+                        pickingData.Number = currentPicking.QuerySelector("td > div.number").TextContent;
+                        pickingData.Quantity = Int32.Parse(currentPicking.QuerySelector("td > div.count").TextContent.Replace('X', '0'));
+                        pickingData.DateRange = currentPicking.QuerySelector("td > div.dateRange").TextContent;
+                        pickingData.Info = currentPicking.QuerySelector("td > div.usage").TextContent;
                     }
                 }
-            }
-        }
-
-        /// <summary>
-        /// Writing sub group names
-        /// </summary>
-        /// <param name="groupName"></param>
-        /// <param name="subGroupNames"></param>
-        private static void DbWriterPickingSubGroups(string groupName, List<string> subGroupNames)
-        {
-            foreach (var subGroupName in subGroupNames)
-            {
-                using (SqlConnection sqlConnection = new SqlConnection(dBConnectionString))
-                {
-                    sqlConnection.Open();
-                    try
-                    {
-                        string sqlExpression = $"INSERT INTO PickingSubGroups ([PICKINGSUBGROUPNAME], [PICKINGGROUPNAME]) " +
-                            $"VALUES ('{subGroupName}', '{groupName}')";
-                        SqlCommand command = new SqlCommand(sqlExpression, sqlConnection);
-                        command.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogMsg(ex.ToString());
-                        throw;
-                    }
-                    finally
-                    {
-                        sqlConnection.Close();
-                    }
-                }
+                DbWriter.WritePickings(pickingData);
             }
         }
     }

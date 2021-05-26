@@ -106,22 +106,30 @@ namespace TestTaskParserWPF
             IElement firstTable = htmlDocument.QuerySelector("tbody");
             IHtmlCollection<IElement> pickingTable = firstTable.QuerySelectorAll("tbody > tr");
             IElement[] pickingTableHeaders = pickingTable[0].QuerySelectorAll("th").ToArray();
-            foreach (var header in pickingTableHeaders)
-            {
-                //Smth to do with headers
-                //MainWindow.AppWindow.RichTextBoxLog.AppendText(header.TextContent + "\n");
-            }
+            //foreach (var header in pickingTableHeaders)
+            //{
+            //    Smth to do with headers
+            //    MainWindow.AppWindow.RichTextBoxLog.AppendText(header.TextContent + "\n");
+            //}
             for (int tableRow = 1; tableRow < pickingTable.Length; tableRow++)
             {
                 Logger.LogMsg($"Parsing picking {tableRow+1} \t");
                 IElement[] cellElements = pickingTable[tableRow].QuerySelectorAll("td").ToArray();
                 DbWriterPickingData(pickingTableHeaders, cellElements, dBConnectionString);
+                var pickingGroupLink = "https://www.ilcats.ru" + cellElements[0].QuerySelector("div.modelCode > a").GetAttribute("href");
+                ParsePickingGroups(pickingGroupLink);
                 //foreach (var cellElement in cellElements)
                 //{
                 //    //Smth to do with each table cell
                 //    MainWindow.AppWindow.RichTextBoxLog.AppendText(cellElement.TextContent + "\n");
                 //}
             }
+        }
+
+        private static void ParsePickingGroups(string pickingGroupLink)
+        {
+
+            throw new NotImplementedException();
         }
 
         /// <summary>

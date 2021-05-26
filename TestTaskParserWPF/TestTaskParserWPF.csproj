@@ -160,12 +160,8 @@
     <Resource Include="log.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="DataBase\CarDetails.mdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="DataBase\CarDetails_log.ldf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="DataBase\CarDetails.mdf" />
+    <Content Include="DataBase\CarDetails_log.ldf" />
     <Content Include="DataBase\InitDb.sql" />
     <Content Include="DataBase\SelectTop1000ModelData.sql" />
     <Content Include="DataBase\SelectTop1000ModelPicking.sql" />

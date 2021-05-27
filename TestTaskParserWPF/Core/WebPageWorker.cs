@@ -48,14 +48,16 @@ namespace TestTaskParserWPF
                 IElement[] childrenElements = modelParent.QuerySelectorAll("div.List").Children("div.List").ToArray();
                 for (int counter = 0; counter < childrenCount; counter++)
                 {
-                    //Smth to do with models data
+                    //writing modeldata to class
                     string modelCode = childrenElements[counter].QuerySelector("div.List > div.List > div.id").TextContent;
                     string modelIdHref = childrenElements[counter].QuerySelector("div.List > div.List > div.id > a").GetAttribute("href");
                     string modelDateRange = childrenElements[counter].QuerySelector("div.List > div.List > div.dateRange").TextContent;
                     string modelPickingCode = childrenElements[counter].QuerySelector("div.List > div.List > div.modelCode").TextContent;
                     ModelData modelData = new ModelData(modelCode, modelName, modelDateRange, modelPickingCode);
+                    //send modeldata to db writer
                     DbWriter.WriteModelData(modelData);
                     string[] threadParams = new string[] { "https://www.ilcats.ru" + modelIdHref, modelData.ModelCode };
+                    //start parsing of model equipment
                     ParseEquipment("https://www.ilcats.ru" + modelIdHref, modelData.ModelCode);
                 }
             }
@@ -79,22 +81,18 @@ namespace TestTaskParserWPF
             }
             catch (NullReferenceException)
             {
-                if (Misc.CheckWebPageAvailability(url))
-                {
-                    pickingTable = firstTable.QuerySelectorAll("tbody > tr");
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
+            //parsing cell headers
             IElement[] pickingTableHeaders = pickingTable[0].QuerySelectorAll("th").ToArray();
             for (int tableRow = 1; tableRow < pickingTable.Length; tableRow++)
             {
+                //parsing table data cells
                 IElement[] cellElements = pickingTable[tableRow].QuerySelectorAll("td").ToArray();
                 DbWriter.WritePickingData(pickingTableHeaders, cellElements, modelCode);
                 var pickingGroupLink = "https://www.ilcats.ru" + cellElements[0].QuerySelector("div.modelCode > a").GetAttribute("href");
-                ParsePickingGroups(pickingGroupLink, cellElements[0].TextContent);
+                //starting picking groups parser
+                ParseSpareGroups(pickingGroupLink, cellElements[0].TextContent);
             }
         }
 
@@ -103,7 +101,7 @@ namespace TestTaskParserWPF
         /// </summary>
         /// <param name="pickingGroupLink">Link to group</param>
         /// <param name="pickingEquipment">picking equipment name</param>
-        private static void ParsePickingGroups(string pickingGroupLink, string pickingEquipment)
+        private static void ParseSpareGroups(string pickingGroupLink, string pickingEquipment)
         {
             List<string> groupNames = new List<string>();
             List<string> groupLinks = new List<string>();
@@ -118,7 +116,7 @@ namespace TestTaskParserWPF
             }
             DbWriter.WriteSparePartGroups(groupNames, pickingEquipment);
 
-            ParsePickingSubGroups(groupNames, groupLinks);
+            ParseSpareSubGroups(groupNames, groupLinks);
         }
 
         /// <summary>
@@ -126,10 +124,11 @@ namespace TestTaskParserWPF
         /// </summary>
         /// <param name="groupNames">Group names</param>
         /// <param name="groupLinks">Link to these groups</param>
-        private static void ParsePickingSubGroups(List<string> groupNames, List<string> groupLinks)
+        private static void ParseSpareSubGroups(List<string> groupNames, List<string> groupLinks)
         {
             List<string> subGroupNames = new List<string>();
-            List<string> pickingLinks = new List<string>();
+            List<string> spareLinks = new List<string>();
+            //parsing each group
             for (int groupCounter = 0; groupCounter < groupNames.Count; groupCounter++)
             {
                 string pickingGroupPage = Misc.GetWebPage("https://www.ilcats.ru/" + groupLinks[groupCounter]);
@@ -139,10 +138,11 @@ namespace TestTaskParserWPF
                 foreach (var element in elements)
                 {
                     subGroupNames.Add(element.TextContent);
-                    pickingLinks.Add("https://www.ilcats.ru/" + element.QuerySelector("a").GetAttribute("href"));
+                    spareLinks.Add("https://www.ilcats.ru/" + element.QuerySelector("a").GetAttribute("href"));
                 }
                 DbWriter.WriterPickingSubGroups(groupNames[groupCounter], subGroupNames);
-                ParsePicking(subGroupNames, pickingLinks);
+                //starting each spare
+                ParseSpareData(subGroupNames, spareLinks);
             }
         }
 
@@ -151,7 +151,7 @@ namespace TestTaskParserWPF
         /// </summary>
         /// <param name="subGroupNames"></param>
         /// <param name="subGroupLinks"></param>
-        private static void ParsePicking(List<string> subGroupNames, List<string> pickingLinks)
+        private static void ParseSpareData(List<string> subGroupNames, List<string> pickingLinks)
         {
             for (int pickingCounter = 0; pickingCounter < subGroupNames.Count; pickingCounter++)
             {
@@ -200,7 +200,7 @@ namespace TestTaskParserWPF
                         pickingData.Info = currentPicking.QuerySelector("td > div.usage").TextContent;
                     }
                 }
-                DbWriter.WritePickings(pickingData);
+                DbWriter.WriteSpares(pickingData);
             }
         }
     }

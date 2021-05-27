@@ -17,4 +17,3 @@ DROP PROCEDURE ModelDataAdd
 DROP PROCEDURE SparePartDataADD
 DROP PROCEDURE SparePartGroupAdd
 DROP PROCEDURE SparePartSubGroupAdd
-DROP PROCEDURE checkValueInGroup

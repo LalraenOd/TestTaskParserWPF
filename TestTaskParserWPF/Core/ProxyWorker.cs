@@ -33,6 +33,7 @@ namespace TestTaskParserWPF.Core
                     MainWindow.AppWindow.Dispatcher.Invoke(() =>
                     {
                         MainWindow.AppWindow.TextBlockTotalProxies.Text = $"Total proxies: {totalProxies}";
+                        MainWindow.AppWindow.TextBlockCurrentProxy.Text = $"Current proxy: {selectedProxy}";
                         MainWindow.AppWindow.TextBlockProxiesChecked.Text = $"Checked: {checkedProxies}";
                         MainWindow.AppWindow.TextBlockWorkingProxies.Text = $"Working proxies: {workingProxiesCount}";
                         MainWindow.AppWindow.TextBlockRequestCount.Text = $"Requests with current proxy: {requestsWithProxy}";
@@ -58,6 +59,7 @@ namespace TestTaskParserWPF.Core
                 Directory.CreateDirectory("proxy");
             if (File.Exists(proxyFilePath))
                 File.Delete(proxyFilePath);
+            //downloading proxylist from github source
             string proxyList = "https://sunny9577.github.io/proxy-scraper/proxies.txt";
             using (WebClient webClient = new WebClient())
             {
@@ -65,6 +67,7 @@ namespace TestTaskParserWPF.Core
             }
             string[] proxies = File.ReadAllLines(proxyFilePath);
             totalProxies = proxies.Length;
+            //spliting proxy array to 5 lists
             List<string> proxies1 = new List<string>();
             List<string> proxies2 = new List<string>();
             List<string> proxies3 = new List<string>();
@@ -79,6 +82,7 @@ namespace TestTaskParserWPF.Core
                 proxies4.Add(proxies[i + proxiesPart * 3]);
                 proxies5.Add(proxies[i + proxiesPart * 4]);
             }
+            //launching different threads for 5 proxy list parts
             Thread ThreadProxyFounder1 = new Thread(new ParameterizedThreadStart(ProxyChecker));
             ThreadProxyFounder1.IsBackground = true;
             ThreadProxyFounder1.Start(proxies1);
@@ -114,10 +118,12 @@ namespace TestTaskParserWPF.Core
             //Check if proxy works. Takes a lot of time for unknown reason
             foreach (string proxy in proxies)
             {
+                //splitting proxy ip and port
                 string proxyIP = proxy.Split(':')[0];
                 int proxyPort = int.Parse(proxy.Split(':')[1]);
                 using (WebClient webClient = new WebClient())
                 {
+                    //trying to get page using proxy
                     webClient.Proxy = new WebProxy(proxyIP, proxyPort);
                     webClient.Encoding = Encoding.UTF8;
                     string webPage = "";
@@ -127,8 +133,10 @@ namespace TestTaskParserWPF.Core
                     }
                     catch (WebException)
                     {
+                        //Go to next proxy if fail
                         continue;
                     }
+                    //also checking if site blocks this proxy?
                     HtmlParser parser = new HtmlParser();
                     IHtmlDocument htmlDocument = parser.ParseDocument(webPage);
                     IHtmlCollection<IElement> body = htmlDocument.QuerySelectorAll("div.ifButtonsSetBody");
@@ -143,8 +151,9 @@ namespace TestTaskParserWPF.Core
                     }
                     checkedProxies++;
                 }
-                //close threads
             }
+            //Closing threads after all proxy checking
+            Thread.CurrentThread.Abort();
         }
     }
 }

@@ -2,6 +2,9 @@
 
 namespace TestTaskParserWPF.Core
 {
+    /// <summary>
+    /// Class for storing picking data information (5-th parser step)
+    /// </summary>
     internal class PickingData
     {
         public PickingData()

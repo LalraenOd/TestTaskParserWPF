@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using TestTaskParserWPF.Core;
 
 namespace TestTaskParserWPF
 {
@@ -17,6 +18,7 @@ namespace TestTaskParserWPF
             {
                 MainWindow.AppWindow.Dispatcher.Invoke(() =>
                 {
+                    MainWindow.AppWindow.TextBlockTotalRequest.Text = Misc.totalRequests.ToString();
                     MainWindow.AppWindow.RichTextBoxLog.AppendText(logMsg);
                     MainWindow.AppWindow.RichTextBoxLog.ScrollToEnd();
                     File.AppendAllText(file, logMsg);

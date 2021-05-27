@@ -174,7 +174,7 @@ namespace TestTaskParserWPF.Core
         ///
         /// </summary>
         /// <param name="pickingData"></param>
-        internal static void WritePickings(PickingData pickingData)
+        internal static void WriteSpares(PickingData pickingData)
         {
             using (SqlConnection sqlConnection = new SqlConnection(DBConnectionString))
             {

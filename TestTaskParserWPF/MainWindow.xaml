@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="TTParser" Height="550" Width="900" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
     <Grid>
-        <Button Name="ButtonStart" Content="Start" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Width="737" Click="ButtonStart_Click" />
+        <Button Name="ButtonStart" Content="Start" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Width="629" Click="ButtonStart_Click" />
         <RichTextBox Name="RichTextBoxLog" HorizontalAlignment="Left" Margin="10,133,0,0" Width="872" Height="366" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto" />
         <CheckBox Name="CheckBoxDBState" Content="DB connection" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Checked="CheckBoxDBState_Checked" />
         <CheckBox Name="CheckBoxSiteAval" Content="Site availability" HorizontalAlignment="Left" Margin="649,10,0,0" VerticalAlignment="Top" Checked="CheckBoxSiteAval_Checked" />
@@ -15,11 +15,14 @@
         <TextBox Name="TextBoxSQLConnectionString" HorizontalAlignment="Left" Height="20" Margin="10,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="629" />
         <Button Name="ButtonCheckBD" Content="Check DB" HorizontalAlignment="Left" Margin="644,30,0,0" VerticalAlignment="Top" Width="103" Click="ButtonCheckBD_Click" />
         <Button Name="ButtonCheckWebPage" Content="Check WebPage" HorizontalAlignment="Left" Margin="644,55,0,0" VerticalAlignment="Top" Width="103" Click="ButtonCheckWebPage_Click" />
-        <Button Name="ButtonStop" Content="STOP" HorizontalAlignment="Left" Margin="10,105,0,0" VerticalAlignment="Top" Width="737" Click="ButtonStop_Click" />
+        <Button Name="ButtonStop" Content="STOP" HorizontalAlignment="Left" Margin="10,105,0,0" VerticalAlignment="Top" Width="629" Click="ButtonStop_Click" />
         <CheckBox Name="CheckBoxProxyAval" Content="Proxy available" HorizontalAlignment="Left" Margin="769,10,0,0" VerticalAlignment="Top" Checked="CheckBoxProxyAval_Checked"/>
         <TextBlock Name="TextBlockTotalProxies" HorizontalAlignment="Left" Margin="752,30,0,0" TextWrapping="Wrap" Text="Total proxies: 0" TextAlignment="Center" VerticalAlignment="Top" Width="130"/>
         <TextBlock Name="TextBlockProxiesChecked" HorizontalAlignment="Left" Margin="754,51,0,0" TextWrapping="Wrap" Text="Checked: 0" TextAlignment="Center" VerticalAlignment="Top" Width="130"/>
         <TextBlock Name="TextBlockWorkingProxies" HorizontalAlignment="Left" Margin="752,72,0,0" TextWrapping="Wrap" Text="Working proxies: 0" TextAlignment="Center" VerticalAlignment="Top" Width="130"/>
         <TextBlock Name="TextBlockRequestCount" HorizontalAlignment="Left" Margin="752,91,0,0" TextWrapping="Wrap" Text="Requests with current proxy: 0" TextAlignment="Center" VerticalAlignment="Top" Width="130" Height="34"/>
+        <TextBlock Name="TextBlockCurrentProxy" HorizontalAlignment="Left" Margin="649,80,0,0" TextWrapping="Wrap" Text= "Current proxy: " TextAlignment="Center" VerticalAlignment="Top" Width="98"/>
+        <TextBlock Name="TextBlockTotalRequest" HorizontalAlignment="Left" Margin="644,105,0,0" TextWrapping="Wrap" Text="Total requests: " TextAlignment="Center" VerticalAlignment="Top" Width="103"/>
+
     </Grid>
 </Window>

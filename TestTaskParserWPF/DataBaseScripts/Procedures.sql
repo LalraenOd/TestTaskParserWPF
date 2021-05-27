@@ -8,8 +8,14 @@ CREATE PROCEDURE ModelDataAdd
 	@modelDateRange NVARCHAR(50),
 	@modelPickingCode NVARCHAR(50)
 AS
-INSERT INTO [MODELDATA] ([MODELCODE], [MODELNAME], [MODELDATERANGE], [MODELPICKINGCODE]) 
-VALUES (@modelCode, @modelName, @modelDateRange, @modelPickingCode)
+BEGIN
+	IF NOT EXISTS (SELECT * FROM [MODELDATA]
+					WHERE [MODELCODE]= @modelCode)
+	BEGIN
+		INSERT INTO [MODELDATA] ([MODELCODE], [MODELNAME], [MODELDATERANGE], [MODELPICKINGCODE]) 
+		VALUES (@modelCode, @modelName, @modelDateRange, @modelPickingCode)
+	END
+END
 
 
 GO
@@ -54,5 +60,5 @@ CREATE PROCEDURE SparePartDataAdd
 	@sparePartSubGroupLink NVARCHAR(200),
 	@sparePartImageName NVARCHAR(50) = NULL
 AS
-INSERT INTO SPAREPARTDATA ([SPAREPARTCODE], [SPAREPARTCOUNT], [SPAREPARTINFO], [SPAREPARTTREECODE], [SPAREPARTTREE], [SPAREPARTDATE], [SPAREPARTSUBGROUPLINK], [SPAREPARTIMAGENAME]) 
-VALUES (@sparePartCode, @sparePartCount, @sparePartInfo, @sparePartTreeCode, @sparePartTree, @sparePartDate, @sparePartSubGroupLink, @sparePartImageName)
+INSERT INTO SPAREPARTDATA ([SPAREPARTCODE], [SPAREPARTCOUNT], [SPAREPARTINFO], [SPAREPARTTREECODE], [SPAREPARTTREE], [SPAREPARTDATE], [SPAREPARTSUBGROUPNAME], [SPAREPARTSUBGROUPLINK], [SPAREPARTIMAGENAME]) 
+VALUES (@sparePartCode, @sparePartCount, @sparePartInfo, @sparePartTreeCode, @sparePartTree, @sparePartDate, @sparePartSubGroupName, @sparePartSubGroupLink, @sparePartImageName)

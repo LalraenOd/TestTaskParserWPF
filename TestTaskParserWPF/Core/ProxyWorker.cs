@@ -1,7 +1,11 @@
-﻿using System.Collections;
+﻿using AngleSharp.Dom;
+using AngleSharp.Html.Dom;
+using AngleSharp.Html.Parser;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -90,9 +94,6 @@ namespace TestTaskParserWPF.Core
             Thread ThreadProxyFounder5 = new Thread(new ParameterizedThreadStart(ProxyChecker));
             ThreadProxyFounder5.IsBackground = true;
             ThreadProxyFounder5.Start(proxies5);
-            //Thread threadProxyChecker = new Thread(new ParameterizedThreadStart(ProxyChecker));
-            //threadProxyChecker.IsBackground = true;
-            //threadProxyChecker.Start(proxies.ToList());
         }
 
         /// <summary>
@@ -115,23 +116,34 @@ namespace TestTaskParserWPF.Core
             {
                 string proxyIP = proxy.Split(':')[0];
                 int proxyPort = int.Parse(proxy.Split(':')[1]);
-                var req = (HttpWebRequest)HttpWebRequest.Create("https://www.ilcats.ru/");
-                req.Proxy = new WebProxy(proxyIP, proxyPort);
-                WebResponse resp;
-                try
+                using (WebClient webClient = new WebClient())
                 {
-                    resp = req.GetResponse();
+                    webClient.Proxy = new WebProxy(proxyIP, proxyPort);
+                    webClient.Encoding = Encoding.UTF8;
+                    string webPage = "";
+                    try
+                    {
+                        webPage = webClient.DownloadString("https://www.ilcats.ru");
+                    }
+                    catch (WebException)
+                    {
+                        continue;
+                    }
+                    HtmlParser parser = new HtmlParser();
+                    IHtmlDocument htmlDocument = parser.ParseDocument(webPage);
+                    IHtmlCollection<IElement> body = htmlDocument.QuerySelectorAll("div.ifButtonsSetBody");
+                    if (body.Length > 0)
+                    {
+                        workingProxies.Add(proxy);
+                        workingProxiesCount++;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                    checkedProxies++;
                 }
-                catch (WebException)
-                {
-                    continue;
-                }
-                if (resp != null)
-                {
-                    workingProxies.Add(proxy);
-                    workingProxiesCount++;
-                }
-                checkedProxies++;
+                //close threads
             }
         }
     }

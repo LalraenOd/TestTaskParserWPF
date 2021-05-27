@@ -89,11 +89,6 @@ namespace TestTaskParserWPF
                 }
             }
             IElement[] pickingTableHeaders = pickingTable[0].QuerySelectorAll("th").ToArray();
-            //foreach (var header in pickingTableHeaders)
-            //{
-            //    Smth to do with headers
-            //    MainWindow.AppWindow.RichTextBoxLog.AppendText(header.TextContent + "\n");
-            //}
             for (int tableRow = 1; tableRow < pickingTable.Length; tableRow++)
             {
                 IElement[] cellElements = pickingTable[tableRow].QuerySelectorAll("td").ToArray();
@@ -121,7 +116,8 @@ namespace TestTaskParserWPF
                 groupNames.Add(element.TextContent);
                 groupLinks.Add(element.QuerySelector("a").GetAttribute("href"));
             }
-            DbWriter.WritePickingGroups(groupNames, pickingEquipment);
+            DbWriter.WriteSparePartGroups(groupNames, pickingEquipment);
+
             ParsePickingSubGroups(groupNames, groupLinks);
         }
 
@@ -168,7 +164,7 @@ namespace TestTaskParserWPF
                     $"{alldata.Match(pickingLink).Groups["group"].Value}_" +
                     $"{alldata.Match(pickingLink).Groups["subgroup"].Value}";
                 //Creating new picking data
-                PickingData pickingData = new PickingData(pickingLink, imageName);
+                PickingData pickingData = new PickingData(subGroupNames[pickingCounter], pickingLink, imageName);
                 //Parsing
                 var webPageHtml = Misc.GetWebPage(pickingLink);
                 HtmlParser parser = new HtmlParser();

@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="TTParser" Height="550" Width="900" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
     <Grid>
-        <Button Name="ButtonStart" Content="Start" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Width="629" Click="ButtonStart_Click" />
+        <Button Name="ButtonStart" Content="Start" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Width="737" Click="ButtonStart_Click" />
         <RichTextBox Name="RichTextBoxLog" HorizontalAlignment="Left" Margin="10,133,0,0" Width="872" Height="366" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto" />
         <CheckBox Name="CheckBoxDBState" Content="DB connection" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Checked="CheckBoxDBState_Checked" />
         <CheckBox Name="CheckBoxSiteAval" Content="Site availability" HorizontalAlignment="Left" Margin="649,10,0,0" VerticalAlignment="Top" Checked="CheckBoxSiteAval_Checked" />
@@ -21,6 +21,5 @@
         <TextBlock Name="TextBlockProxiesChecked" HorizontalAlignment="Left" Margin="754,51,0,0" TextWrapping="Wrap" Text="Checked: 0" TextAlignment="Center" VerticalAlignment="Top" Width="130"/>
         <TextBlock Name="TextBlockWorkingProxies" HorizontalAlignment="Left" Margin="752,72,0,0" TextWrapping="Wrap" Text="Working proxies: 0" TextAlignment="Center" VerticalAlignment="Top" Width="130"/>
         <TextBlock Name="TextBlockRequestCount" HorizontalAlignment="Left" Margin="752,91,0,0" TextWrapping="Wrap" Text="Requests with current proxy: 0" TextAlignment="Center" VerticalAlignment="Top" Width="130" Height="34"/>
-        <CheckBox Name="CheckboxAutoStart" Content="AutoStart" HorizontalAlignment="Center" Margin="649,83,165,0" VerticalAlignment="Top" Checked="CheckboxAutoStart_Checked"/>
     </Grid>
 </Window>

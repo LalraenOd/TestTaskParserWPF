@@ -91,8 +91,6 @@ namespace TestTaskParserWPF
         private void CheckBoxSiteAval_Checked(object sender, RoutedEventArgs e)
         {
             ButtonStart.IsEnabled = CheckBoxDBState.IsChecked == true && CheckBoxSiteAval.IsChecked == true && CheckBoxProxyAval.IsChecked == true;
-            if (ButtonStart.IsEnabled)
-                ButtonStart_Click(sender, e);
         }
 
         /// <summary>
@@ -103,8 +101,6 @@ namespace TestTaskParserWPF
         private void CheckBoxDBState_Checked(object sender, RoutedEventArgs e)
         {
             ButtonStart.IsEnabled = CheckBoxDBState.IsChecked == true && CheckBoxSiteAval.IsChecked == true && CheckBoxProxyAval.IsChecked == true;
-            if (ButtonStart.IsEnabled)
-                ButtonStart_Click(sender, e);
         }
 
         /// <summary>
@@ -131,16 +127,6 @@ namespace TestTaskParserWPF
         private void CheckBoxProxyAval_Checked(object sender, RoutedEventArgs e)
         {
             ButtonStart.IsEnabled = CheckBoxDBState.IsChecked == true && CheckBoxSiteAval.IsChecked == true && CheckBoxProxyAval.IsChecked == true;
-            if (ButtonStart.IsEnabled)
-                ButtonStart_Click(sender, e);
-        }
-
-        private void CheckboxAutoStart_Checked(object sender, RoutedEventArgs e)
-        {
-            ButtonCheckBD_Click(sender, e);
-            ButtonCheckWebPage_Click(sender, e);
-            if (ButtonStart.IsEnabled)
-                ButtonStart_Click(sender, e);
         }
     }
 }

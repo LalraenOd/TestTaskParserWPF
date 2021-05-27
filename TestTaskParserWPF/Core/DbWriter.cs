@@ -20,10 +20,16 @@ namespace TestTaskParserWPF.Core
                 sqlConnection.Open();
                 try
                 {
-                    string sqlExpression = $"INSERT INTO ModelData (MODELCODE, MODELNAME, MODELDATERANGE, MODELPICKINGCODE) " +
+                    string sqlExpression = $"INSERT INTO [MODELDATA] ([MODELCODE], [MODELNAME], [MODELDATERANGE], [MODELPICKINGCODE]) " +
                         $"VALUES ('{modelData.ModelCode}','{modelData.ModelName}','{modelData.ModelDateRange}','{modelData.ModelPickingCode}')";
                     SqlCommand command = new SqlCommand(sqlExpression, sqlConnection);
                     command.ExecuteNonQuery();
+                }
+                catch (SqlException sqlEx)
+                {
+                    if (sqlEx.ToString().Contains("UNIQUE") == true)
+                    {
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -54,9 +60,9 @@ namespace TestTaskParserWPF.Core
                 {
                     //chaniging first and second column name to english manually
                     if (counter == 0)
-                        sqlExprInsert += "[DATE],";
+                        sqlExprInsert += "[EQUIPMENTCODE],";
                     else if (counter == 1)
-                        sqlExprInsert += "[EQUIPMENT],";
+                        sqlExprInsert += "[DATE],";
                     else if (counter < headers.Length - 1 && counter > 1)
                         sqlExprInsert += $"[{headers[counter].TextContent.Replace('\'', ' ')}],";
                     else if (counter == (headers.Length - 1))
@@ -68,7 +74,7 @@ namespace TestTaskParserWPF.Core
                         sqlExprValues += $"'{cellElements[counter].TextContent}'";
                 }
             }
-            string sqlExpression = $"INSERT INTO ModelPicking ({sqlExprInsert}) VALUES ({sqlExprValues})";
+            string sqlExpression = $"INSERT INTO [MODELEQUIPMENT] ({sqlExprInsert}) VALUES ({sqlExprValues})";
             //writing info to db using expression
             using (SqlConnection sqlConnection = new SqlConnection(dBConnectionString))
             {
@@ -90,11 +96,11 @@ namespace TestTaskParserWPF.Core
         }
 
         /// <summary>
-        ///
+        ///Writing picking groups
         /// </summary>
         /// <param name="groupNames"></param>
         /// <param name="pickingEquipment"></param>
-        internal static void WritePickingGroups(List<string> groupNames, string pickingEquipment)
+        internal static void WriteSparePartGroups(List<string> groupNames, string pickingEquipment)
         {
             foreach (var groupName in groupNames)
             {
@@ -103,10 +109,20 @@ namespace TestTaskParserWPF.Core
                     sqlConnection.Open();
                     try
                     {
-                        string sqlExpression = $"INSERT INTO [PickingGroups] ([PICKINGID], [PICKINGGROUPNAME]) " +
-                            $"VALUES ('{pickingEquipment}', '{groupName}')";
-                        SqlCommand command = new SqlCommand(sqlExpression, sqlConnection);
-                        command.ExecuteNonQuery();
+                        string sqlExpressionCheck = $"  SELECT * FROM [SPAREPARTGROUP] WHERE [SPAREPARTGROUPNAME] = '{groupName}'";
+                        SqlCommand sqlCommandCheck = new SqlCommand(sqlExpressionCheck, sqlConnection);
+                        var groupExists = sqlCommandCheck.ExecuteScalar();
+                        if (groupExists == null)
+                        {
+                            string sqlExpression = $"INSERT INTO [SPAREPARTGROUP] ([EQUIPMENTCODE], [SPAREPARTGROUPNAME]) " +
+                                                $"VALUES ('{pickingEquipment}', '{groupName}')";
+                            SqlCommand command = new SqlCommand(sqlExpression, sqlConnection);
+                            command.ExecuteNonQuery();
+                        }
+                        else
+                        {
+                            continue;
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -135,7 +151,7 @@ namespace TestTaskParserWPF.Core
                     sqlConnection.Open();
                     try
                     {
-                        string sqlExpression = $"INSERT INTO PickingSubGroups ([PICKINGSUBGROUPNAME], [PICKINGGROUPNAME]) " +
+                        string sqlExpression = $"INSERT INTO [SPAREPARTSUBGROUP] ([SPAREPARTSUBGROUPNAME], [SPAREPARTGROUPNAME]) " +
                             $"VALUES ('{subGroupName}', '{groupName}')";
                         SqlCommand command = new SqlCommand(sqlExpression, sqlConnection);
                         command.ExecuteNonQuery();
@@ -164,7 +180,7 @@ namespace TestTaskParserWPF.Core
                 sqlConnection.Open();
                 try
                 {
-                    string sqlExpression = $"INSERT INTO PickingData ([PICKINGCODE], [PICKINGCOUNT], [PICKINGINFO], [PICKINGTREECODE], [PICKINGTREE], [PICKINGDATE], [PICKINGSUBGROUPLINK], [PICKINGIMAGENAME]) " +
+                    string sqlExpression = $"INSERT INTO SPAREPARTDATA ([SPAREPARTCODE], [SPAREPARTCOUNT], [SPAREPARTINFO], [SPAREPARTTREECODE], [SPAREPARTTREE], [SPAREPARTDATE], [SPAREPARTSUBGROUPLINK], [SPAREPARTIMAGENAME]) " +
                         $"VALUES ('{pickingData.Number}', '{pickingData.Quantity}', '{pickingData.Info}', '{pickingData.TreeCode}', '{pickingData.Tree}', '{pickingData.DateRange}', '{pickingData.SubGroupLink}', '{pickingData.ImageName}')";
                     SqlCommand command = new SqlCommand(sqlExpression, sqlConnection);
                     command.ExecuteNonQuery();

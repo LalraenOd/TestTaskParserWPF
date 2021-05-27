@@ -8,20 +8,19 @@ namespace TestTaskParserWPF.Core
         {
         }
 
-        public PickingData(string subGroupLink, string imageName)
+        public PickingData(string subGropName, string subGroupLink, string imageName)
         {
-            SubGroupLink = subGroupLink;
-            ImageName = imageName;
+            SubGropName = subGropName ?? throw new ArgumentNullException(nameof(subGropName));
+            SubGroupLink = subGroupLink ?? throw new ArgumentNullException(nameof(subGroupLink));
+            ImageName = imageName ?? throw new ArgumentNullException(nameof(imageName));
         }
 
-        public PickingData(string treeCode, string tree, string number, int quantity, string dateRange, string info, string subGroupLink, string imageName)
+        public PickingData(string treeCode, string tree, string number, int quantity, string dateRange, string info, string subGropName, string subGroupLink, string imageName) : this(treeCode, tree, number)
         {
-            TreeCode = treeCode ?? throw new ArgumentNullException(nameof(treeCode));
-            Tree = tree ?? throw new ArgumentNullException(nameof(tree));
-            Number = number ?? throw new ArgumentNullException(nameof(number));
             Quantity = quantity;
             DateRange = dateRange ?? throw new ArgumentNullException(nameof(dateRange));
             Info = info ?? throw new ArgumentNullException(nameof(info));
+            SubGropName = subGropName ?? throw new ArgumentNullException(nameof(subGropName));
             SubGroupLink = subGroupLink ?? throw new ArgumentNullException(nameof(subGroupLink));
             ImageName = imageName ?? throw new ArgumentNullException(nameof(imageName));
         }
@@ -32,6 +31,7 @@ namespace TestTaskParserWPF.Core
         internal int Quantity { get; set; }
         internal string DateRange { get; set; }
         internal string Info { get; set; }
+        internal string SubGropName { get; set; }
         internal string SubGroupLink { get; set; }
         internal string ImageName { get; set; }
     }

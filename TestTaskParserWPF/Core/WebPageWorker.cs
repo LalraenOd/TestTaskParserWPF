@@ -4,8 +4,6 @@ using AngleSharp.Html.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
 using TestTaskParserWPF.Core;
 
@@ -57,6 +55,7 @@ namespace TestTaskParserWPF
                     string modelPickingCode = childrenElements[counter].QuerySelector("div.List > div.List > div.modelCode").TextContent;
                     ModelData modelData = new ModelData(modelCode, modelName, modelDateRange, modelPickingCode);
                     DbWriter.WriteModelData(modelData);
+                    string[] threadParams = new string[] { "https://www.ilcats.ru" + modelIdHref, modelData.ModelCode };
                     ParseEquipment("https://www.ilcats.ru" + modelIdHref, modelData.ModelCode);
                 }
             }
@@ -101,11 +100,6 @@ namespace TestTaskParserWPF
                 DbWriter.WritePickingData(pickingTableHeaders, cellElements, modelCode);
                 var pickingGroupLink = "https://www.ilcats.ru" + cellElements[0].QuerySelector("div.modelCode > a").GetAttribute("href");
                 ParsePickingGroups(pickingGroupLink, cellElements[0].TextContent);
-                //foreach (var cellElement in cellElements)
-                //{
-                //    //Smth to do with each table cell
-                //    MainWindow.AppWindow.RichTextBoxLog.AppendText(cellElement.TextContent + "\n");
-                //}
             }
         }
 
@@ -180,8 +174,16 @@ namespace TestTaskParserWPF
                 HtmlParser parser = new HtmlParser();
                 IHtmlDocument htmlDocument = parser.ParseDocument(webPageHtml);
                 //getting image
-                var imageLink = htmlDocument.QuerySelector("div.ifImage > div.Images > div.ImageArea > div.Image > img").GetAttribute("src");
-                Misc.SaveImage(imageLink, imageName);
+                try
+                {
+                    var imageLink = htmlDocument.QuerySelector("div.ifImage > div.Images > div.ImageArea > div.Image > img").GetAttribute("src");
+                    Misc.SaveImage(imageLink, imageName);
+                }
+                catch (NullReferenceException)
+                {
+                    imageName = "";
+                    Logger.LogMsg("No image or exception.");
+                }
                 //getting pickings details
                 IElement table = htmlDocument.QuerySelector("div.Info > table > tbody");
                 IHtmlCollection<IElement> pickings = table.QuerySelectorAll("tr");

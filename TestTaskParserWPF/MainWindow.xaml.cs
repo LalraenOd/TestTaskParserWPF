@@ -33,6 +33,16 @@ namespace TestTaskParserWPF
             ButtonStop.IsEnabled = false;
             CheckBoxDBState.IsEnabled = false;
             CheckBoxSiteAval.IsEnabled = false;
+            CheckBoxProxyAval.IsEnabled = false;
+            Logger.LogMsg("Checking proxy list. It will take some time.");
+            //Start proxy info updater
+            Thread ThreadProxyInfo = new Thread(new ThreadStart(ProxyWorker.ProxyInfoUpdate));
+            ThreadProxyInfo.IsBackground = true;
+            ThreadProxyInfo.Start();
+            //Start proxy getter
+            Thread ThreadProxyFounder = new Thread(new ThreadStart(ProxyWorker.ProxyGetter));
+            ThreadProxyFounder.IsBackground = true;
+            ThreadProxyFounder.Start();
         }
 
         /// <summary>
@@ -80,10 +90,9 @@ namespace TestTaskParserWPF
         /// <param name="e"></param>
         private void CheckBoxSiteAval_Checked(object sender, RoutedEventArgs e)
         {
-            if (CheckBoxDBState.IsChecked == true && CheckBoxSiteAval.IsChecked == true)
-                ButtonStart.IsEnabled = true;
-            else
-                ButtonStart.IsEnabled = false;
+            ButtonStart.IsEnabled = CheckBoxDBState.IsChecked == true && CheckBoxSiteAval.IsChecked == true && CheckBoxProxyAval.IsChecked == true;
+            if (ButtonStart.IsEnabled)
+                ButtonStart_Click(sender, e);
         }
 
         /// <summary>
@@ -93,10 +102,9 @@ namespace TestTaskParserWPF
         /// <param name="e"></param>
         private void CheckBoxDBState_Checked(object sender, RoutedEventArgs e)
         {
-            if (CheckBoxDBState.IsChecked == true && CheckBoxSiteAval.IsChecked == true)
-                ButtonStart.IsEnabled = true;
-            else
-                ButtonStart.IsEnabled = false;
+            ButtonStart.IsEnabled = CheckBoxDBState.IsChecked == true && CheckBoxSiteAval.IsChecked == true && CheckBoxProxyAval.IsChecked == true;
+            if (ButtonStart.IsEnabled)
+                ButtonStart_Click(sender, e);
         }
 
         /// <summary>
@@ -112,19 +120,27 @@ namespace TestTaskParserWPF
             Logger.LogMsg("Staring process...");
             Thread = new Thread(new ThreadStart(WebPageWork.WebPageWorker));
             Thread.Start();
-            //WebPageWork.WebPageWorker(TextBoxSQLConnectionString.Text, TextBoxLink.Text);
         }
-
-        private void RichTextBoxLog_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            RichTextBoxLog.ScrollToEnd();
-        }
-
         private void ButtonStop_Click(object sender, RoutedEventArgs e)
         {
             ButtonStart.IsEnabled = true;
             Thread.Abort();
             Logger.LogMsg("Proccess aborted");
+        }
+
+        private void CheckBoxProxyAval_Checked(object sender, RoutedEventArgs e)
+        {
+            ButtonStart.IsEnabled = CheckBoxDBState.IsChecked == true && CheckBoxSiteAval.IsChecked == true && CheckBoxProxyAval.IsChecked == true;
+            if (ButtonStart.IsEnabled)
+                ButtonStart_Click(sender, e);
+        }
+
+        private void CheckboxAutoStart_Checked(object sender, RoutedEventArgs e)
+        {
+            ButtonCheckBD_Click(sender, e);
+            ButtonCheckWebPage_Click(sender, e);
+            if (ButtonStart.IsEnabled)
+                ButtonStart_Click(sender, e);
         }
     }
 }

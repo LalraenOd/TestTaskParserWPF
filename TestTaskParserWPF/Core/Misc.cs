@@ -2,18 +2,15 @@
 using AngleSharp.Html.Parser;
 using Microsoft.Data.SqlClient;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace TestTaskParserWPF.Core
 {
     internal class Misc
     {
-
         /// <summary>
         /// Gets webpage from source url using UTF-8 encoding
         /// </summary>
@@ -23,19 +20,41 @@ namespace TestTaskParserWPF.Core
         {
             if (CheckWebPageAvailability(url))
             {
+                if (ProxyWorker.requestsWithProxy >= 150)
+                {
+                    ProxyWorker.selectedProxy++;
+                }
                 Logger.LogMsg($"Getting page: {url}");
                 using (WebClient webClient = new WebClient())
                 {
                     string webPage = "";
-                    WebProxy webProxy = new WebProxy(Proxier());
+                    WebProxy webProxy;
+                    try
+                    {
+                        webProxy = new WebProxy(ProxyWorker.workingProxies[ProxyWorker.selectedProxy]);
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        Thread.Sleep(5000);
+                        return GetWebPage(url);
+                    }
                     webClient.Proxy = webProxy;
                     webClient.Encoding = Encoding.UTF8;
-                    return webPage = webClient.DownloadString(url);
+                    ProxyWorker.requestsWithProxy++;
+                    try
+                    {
+                        return webPage = webClient.DownloadString(url);
+                    }
+                    catch (WebException)
+                    {
+                        ProxyWorker.selectedProxy++;
+                        return GetWebPage(url);
+                    }
                 }
             }
             else
             {
-                throw new NotImplementedException();
+                return GetWebPage(url);
             }
         }
 
@@ -54,9 +73,8 @@ namespace TestTaskParserWPF.Core
                 request.Method = "HEAD";
                 using (var response = request.GetResponse())
                 {
-                    Logger.LogMsg("Site is available.");
+                    return true;
                 }
-                return true;
             }
             catch (ThreadAbortException)
             {
@@ -146,47 +164,6 @@ namespace TestTaskParserWPF.Core
                     webClient.DownloadFile("https:" + imageLink, imagePath);
                 }
             }
-        }
-   
-        internal static string Proxier()
-        {
-            //TODO maybe other file with only working proxies. start thread for proxy founding in background. and create exact file. 
-            //parser and page getter working only with real proxy
-            string workingProxy = null;
-            string proxyList = "https://sunny9577.github.io/proxy-scraper/proxies.txt";
-            if (!Directory.Exists("proxies"))
-            {
-                Directory.CreateDirectory("proxies");
-            }
-            using (WebClient webClient = new WebClient())
-            {
-                webClient.DownloadFile(proxyList, @"proxies\proxies.txt");
-            }
-            string[] proxies = File.ReadAllLines(@"proxies\proxies.txt");
-            foreach (var proxy in proxies)
-            {
-                workingProxy = proxy;
-                Logger.LogMsg($"Checing proxy: {proxy}");
-                try
-                {
-                    using (WebClient webClient = new WebClient())
-                    {
-                        string webPage = "";
-                        WebProxy webProxy = new WebProxy(proxy);
-                        webClient.Proxy = webProxy;
-                        webClient.Encoding = Encoding.UTF8;
-                        webPage = webClient.DownloadString("https://www.ilcats.ru/");
-                        if (webPage != null)
-                            break;
-                    }
-                }
-                catch (WebException)
-                {
-                    continue;
-                }
-            }
-            Logger.LogMsg($"Proxy found: {workingProxy}");
-            return workingProxy;
         }
     }
 }

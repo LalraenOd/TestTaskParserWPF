@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace TestTaskParserWPF
 {
@@ -12,12 +13,18 @@ namespace TestTaskParserWPF
         internal static void LogMsg(string logMsg, string file = "log.txt")
         {
             logMsg = "\n" + DateTime.Now.ToString("G") + " " + logMsg;
-            MainWindow.AppWindow.Dispatcher.Invoke(() =>
+            try
             {
-                MainWindow.AppWindow.RichTextBoxLog.AppendText(logMsg);
-                MainWindow.AppWindow.RichTextBoxLog.ScrollToEnd();
-                File.AppendAllText(file, logMsg);
-            });
+                MainWindow.AppWindow.Dispatcher.Invoke(() =>
+                {
+                    MainWindow.AppWindow.RichTextBoxLog.AppendText(logMsg);
+                    MainWindow.AppWindow.RichTextBoxLog.ScrollToEnd();
+                    File.AppendAllText(file, logMsg);
+                });
+            }
+            catch (TaskCanceledException)
+            {
+            }
         }
     }
 }

@@ -59,6 +59,7 @@ namespace TestTaskParserWPF.Core
                 for (int counter = 0; counter < headers.Length; counter++)
                 {
                     //chaniging first and second column name to english manually
+                    //Понимаю, что лучше использовать хранимые, но тут я не нашел решения адекватнее.
                     if (counter == 0)
                         sqlExprInsert += "[EQUIPMENTCODE],";
                     else if (counter == 1)
@@ -66,7 +67,7 @@ namespace TestTaskParserWPF.Core
                     else if (counter < headers.Length - 1 && counter > 1)
                         sqlExprInsert += $"[{headers[counter].TextContent.Replace('\'', ' ')}],";
                     else if (counter == (headers.Length - 1))
-                        sqlExprInsert += $"[{headers[counter].TextContent.Replace('\'', ' ')}]";
+                        sqlExprInsert += $"[{headers[counter].TextContent.Replace('\'', ' ')}]";D
 
                     if (counter < cellElements.Length - 1)
                         sqlExprValues += $"'{cellElements[counter].TextContent}',";

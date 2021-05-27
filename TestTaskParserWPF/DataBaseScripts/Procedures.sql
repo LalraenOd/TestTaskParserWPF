@@ -1,0 +1,56 @@
+USE CarParcing
+
+
+GO
+CREATE PROCEDURE ModelDataAdd 
+	@modelCode NVARCHAR(50),
+	@modelName NVARCHAR(50),
+	@modelDateRange NVARCHAR(50),
+	@modelPickingCode NVARCHAR(50)
+AS
+INSERT INTO [MODELDATA] ([MODELCODE], [MODELNAME], [MODELDATERANGE], [MODELPICKINGCODE]) 
+VALUES ('671440','4-RUNNER TRUCK','08.1983 - 03.1989','RN5#,6#,7#,VZN6#,LN5#,6#')
+
+
+GO
+CREATE PROCEDURE SparePartGroupAdd
+	@equipmentCode NVARCHAR(50),
+	@sparePartGroupName NVARCHAR(50),
+	@id INT OUTPUT
+AS	
+INSERT INTO [SPAREPARTGROUP] ([EQUIPMENTCODE], [SPAREPARTGROUPNAME]) 
+VALUES (@equipmentCode, @sparePartGroupName)
+SET @id = @@IDENTITY
+
+
+GO
+CREATE PROCEDURE SparePartSubGroupAdd
+	@sparePartSubGroup NVARCHAR(100),
+	@sparePartGroup NVARCHAR(50),
+	@id INT OUTPUT
+AS
+INSERT INTO [SPAREPARTSUBGROUP] ([SPAREPARTSUBGROUPNAME], [SPAREPARTGROUPNAME]) 
+VALUES (@sparePartSubGroup,@sparePartGroup)
+
+
+GO
+CREATE PROCEDURE SparePartDataADD
+	@sparePartCode NVARCHAR(50),
+	@sparePartCount INT,
+	@sparePartInfo NVARCHAR(100),
+	@sparePartTreeCode NVARCHAR(50),
+	@sparePartTree NVARCHAR(100),
+	@sparePartDate NVARCHAR(50),
+	@sparePartSubGroupId INT,
+	@sparePartSubGroupLink NVARCHAR(200),
+	@sparePartImageName NVARCHAR(50)
+AS
+INSERT INTO SPAREPARTDATA ([SPAREPARTCODE], [SPAREPARTCOUNT], [SPAREPARTINFO], [SPAREPARTTREECODE], [SPAREPARTTREE], [SPAREPARTDATE], [SPAREPARTSUBGROUPLINK], [SPAREPARTIMAGENAME]) 
+VALUES (@sparePartCode, @sparePartCount, @sparePartInfo, @sparePartTreeCode, @sparePartTree, @sparePartDate, @sparePartSubGroupLink, @sparePartImageName)
+
+GO
+CREATE PROCEDURE checkValueInGroup 
+	@groupName NVARCHAR(50)
+AS
+SELECT * FROM [SPAREPARTGROUP] 
+WHERE [SPAREPARTGROUPNAME] = @groupName

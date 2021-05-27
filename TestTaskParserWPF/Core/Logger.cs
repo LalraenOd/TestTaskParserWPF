@@ -18,7 +18,7 @@ namespace TestTaskParserWPF
             {
                 MainWindow.AppWindow.Dispatcher.Invoke(() =>
                 {
-                    MainWindow.AppWindow.TextBlockTotalRequest.Text = Misc.totalRequests.ToString();
+                    MainWindow.AppWindow.TextBlockTotalRequest.Text = "Total requests: "+Misc.totalRequests.ToString();
                     MainWindow.AppWindow.RichTextBoxLog.AppendText(logMsg);
                     MainWindow.AppWindow.RichTextBoxLog.ScrollToEnd();
                     File.AppendAllText(file, logMsg);

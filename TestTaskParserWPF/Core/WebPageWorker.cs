@@ -2,9 +2,11 @@
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using TestTaskParserWPF.Core;
 
 namespace TestTaskParserWPF
@@ -56,7 +58,6 @@ namespace TestTaskParserWPF
                     ModelData modelData = new ModelData(modelCode, modelName, modelDateRange, modelPickingCode);
                     //send modeldata to db writer
                     DbWriter.WriteModelData(modelData);
-                    string[] threadParams = new string[] { "https://www.ilcats.ru" + modelIdHref, modelData.ModelCode };
                     //start parsing of model equipment
                     ParseEquipment("https://www.ilcats.ru" + modelIdHref, modelData.ModelCode);
                 }
@@ -81,7 +82,7 @@ namespace TestTaskParserWPF
             }
             catch (NullReferenceException)
             {
-                throw;
+                pickingTable = firstTable.QuerySelectorAll("tbody > tr");
             }
             //parsing cell headers
             IElement[] pickingTableHeaders = pickingTable[0].QuerySelectorAll("th").ToArray();

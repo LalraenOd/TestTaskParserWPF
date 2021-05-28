@@ -2,4 +2,4 @@
 SELECT TOP (1000) [PICKINGSUBGROUPID]
       ,[PICKINGSUBGROUPNAME]
       ,[PICKINGGROUPNAME]
-  FROM [CarParcing].[dbo].[PickingSubGroups]
+  FROM [CarParsing].[dbo].[PickingSubGroups]

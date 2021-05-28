@@ -1,8 +1,8 @@
 /****** Script for SelectTopNRows command from SSMS  ******/
-USE CarParcing
+USE CarParsing
 SELECT TOP (1000) [MODELID]
       ,[MODELCODE]
       ,[MODELNAME]
       ,[MODELDATERANGE]
       ,[MODELPICKINGCODE]
-  FROM [CarParcing].[dbo].[ModelData]
+  FROM [CarParsing].[dbo].[ModelData]

@@ -3,17 +3,19 @@ using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Configuration;
+using Microsoft.IdentityModel.Protocols;
 
 namespace TestTaskParserWPF.Core
 {
     internal class DbWriter
     {
-        public static string DBConnectionString { get; set; } = "";
+        public static string DBConnectionString { get; private set; } = ConfigurationManager.ConnectionStrings["DbConnection"].ConnectionString;
 
         /// <summary>
         /// Writing ModelData to DB
         /// </summary>
-        /// <param name="modelData"></param>
+        /// <param name="modelData">ModelData class to write to DB</param>
         internal static void WriteModelData(ModelData modelData)
         {
             using (SqlConnection sqlConnection = new SqlConnection(DBConnectionString))
@@ -107,8 +109,8 @@ namespace TestTaskParserWPF.Core
         /// <summary>
         ///Writing picking groups
         /// </summary>
-        /// <param name="groupNames"></param>
-        /// <param name="pickingEquipment"></param>
+        /// <param name="groupNames">Picking group names</param>
+        /// <param name="pickingEquipment">Exact picking equipment</param>
         internal static void WriteSparePartGroups(List<string> groupNames, string pickingEquipment)
         {
             foreach (var groupName in groupNames)
@@ -140,8 +142,8 @@ namespace TestTaskParserWPF.Core
         /// <summary>
         /// Writing sub group names
         /// </summary>
-        /// <param name="groupName"></param>
-        /// <param name="subGroupNames"></param>
+        /// <param name="groupName">Picking group names</param>
+        /// <param name="subGroupNames">Picking subgroup names</param>
         internal static void WriterPickingSubGroups(string groupName, List<string> subGroupNames)
         {
             foreach (var subGroupName in subGroupNames)
@@ -171,9 +173,9 @@ namespace TestTaskParserWPF.Core
         }
 
         /// <summary>
-        ///
+        /// Writing pickings data names
         /// </summary>
-        /// <param name="pickingData"></param>
+        /// <param name="pickingData">Picking data to write to db</param>
         internal static void WriteSpares(PickingData pickingData)
         {
             using (SqlConnection sqlConnection = new SqlConnection(DBConnectionString))

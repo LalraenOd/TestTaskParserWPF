@@ -24,10 +24,8 @@ namespace TestTaskParserWPF
         /// </summary>
         private void OnStartUp()
         {
-            TextBoxSQLConnectionString.Text = @"Server=localhost\SQLEXPRESS; Database=CarParsing; Trusted_Connection=True;";
             TextBoxLink.Text = "https://www.ilcats.ru/toyota/?function=getModels&market=EU";
             Logger.LogMsg("Program started.\nPlease, check DB connection and site availability to start the process");
-            DbWriter.DBConnectionString = TextBoxSQLConnectionString.Text;
             ButtonStart.IsEnabled = false;
             ButtonStop.IsEnabled = false;
             CheckBoxDBState.IsEnabled = false;
@@ -51,8 +49,7 @@ namespace TestTaskParserWPF
         /// <param name="e"></param>
         private void ButtonCheckBD_Click(object sender, RoutedEventArgs e)
         {
-            TextBoxSQLConnectionString.IsEnabled = false;
-            if (Misc.CheckDbConnection(TextBoxSQLConnectionString.Text))
+            if (Misc.CheckDbConnection(DbWriter.DBConnectionString))
             {
                 CheckBoxDBState.IsChecked = true;
             }

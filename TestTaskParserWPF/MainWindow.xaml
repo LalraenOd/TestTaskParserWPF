@@ -12,7 +12,6 @@
         <CheckBox Name="CheckBoxDBState" Content="DB connection" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Checked="CheckBoxDBState_Checked" />
         <CheckBox Name="CheckBoxSiteAval" Content="Site availability" HorizontalAlignment="Left" Margin="649,10,0,0" VerticalAlignment="Top" Checked="CheckBoxSiteAval_Checked" />
         <TextBox Name="TextBoxLink" HorizontalAlignment="Left" Height="20" Margin="10,55,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="629" />
-        <TextBox Name="TextBoxSQLConnectionString" HorizontalAlignment="Left" Height="20" Margin="10,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="629" />
         <Button Name="ButtonCheckBD" Content="Check DB" HorizontalAlignment="Left" Margin="644,30,0,0" VerticalAlignment="Top" Width="103" Click="ButtonCheckBD_Click" />
         <Button Name="ButtonCheckWebPage" Content="Check WebPage" HorizontalAlignment="Left" Margin="644,55,0,0" VerticalAlignment="Top" Width="103" Click="ButtonCheckWebPage_Click" />
         <Button Name="ButtonStop" Content="STOP" HorizontalAlignment="Left" Margin="10,105,0,0" VerticalAlignment="Top" Width="629" Click="ButtonStop_Click" />

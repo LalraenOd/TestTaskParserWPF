@@ -49,7 +49,7 @@ namespace TestTaskParserWPF
         /// <param name="e"></param>
         private void ButtonCheckBD_Click(object sender, RoutedEventArgs e)
         {
-            if (Misc.CheckDbConnection(DbWriter.DBConnectionString))
+            if (Misc.CheckDbConnection(IlcatsDbWriter.DBConnectionString))
             {
                 CheckBoxDBState.IsChecked = true;
             }

@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Protocols;
 
 namespace TestTaskParserWPF.Core
 {
-    internal class DbWriter
+    internal class IlcatsDbWriter
     {
         public static string DBConnectionString { get; private set; } = ConfigurationManager.ConnectionStrings["DbConnection"].ConnectionString;
 
@@ -18,39 +18,40 @@ namespace TestTaskParserWPF.Core
         /// <param name="modelData">ModelData class to write to DB</param>
         internal static void WriteModelData(ModelData modelData)
         {
-            using (SqlConnection sqlConnection = new SqlConnection(DBConnectionString))
-            {
-                sqlConnection.Open();
-                try
+            if (modelData != null)
+                using (SqlConnection sqlConnection = new SqlConnection(DBConnectionString))
                 {
-                    SqlCommand command = new SqlCommand("ModelDataAdd", sqlConnection);
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@modelCode", modelData.ModelCode));
-                    command.Parameters.Add(new SqlParameter("@modelName", modelData.ModelName));
-                    command.Parameters.Add(new SqlParameter("@modelDateRange", modelData.ModelDateRange));
-                    command.Parameters.Add(new SqlParameter("@modelPickingCode", modelData.ModelPickingCode));
-                    command.ExecuteNonQuery();
-                }
-                catch (SqlException sqlEx)
-                {
-                    if (sqlEx.ToString().Contains("UNIQUE") == true)
+                    sqlConnection.Open();
+                    try
                     {
+                        SqlCommand command = new SqlCommand("ModelDataAdd", sqlConnection);
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@modelCode", modelData?.ModelCode));
+                        command.Parameters.Add(new SqlParameter("@modelName", modelData?.ModelName));
+                        command.Parameters.Add(new SqlParameter("@modelDateRange", modelData?.ModelDateRange));
+                        command.Parameters.Add(new SqlParameter("@modelPickingCode", modelData?.ModelPickingCode));
+                        command.ExecuteNonQuery();
                     }
-                    else
+                    catch (SqlException sqlEx)
                     {
+                        if (sqlEx.ToString().Contains("UNIQUE") == true)
+                        {
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogMsg(ex.ToString());
                         throw;
                     }
+                    finally
+                    {
+                        sqlConnection.Close();
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Logger.LogMsg(ex.ToString());
-                    throw;
-                }
-                finally
-                {
-                    sqlConnection.Close();
-                }
-            }
         }
 
         /// <summary>

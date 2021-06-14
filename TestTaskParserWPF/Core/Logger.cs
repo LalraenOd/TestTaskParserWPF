@@ -25,8 +25,9 @@ namespace TestTaskParserWPF
                 });
             }
             catch (TaskCanceledException)
-            {
+            {  
             }
+           
         }
     }
 }

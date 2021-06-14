@@ -7,6 +7,9 @@ using System.Threading;
 
 namespace TestTaskParserWPF.Core
 {
+    /// <summary>
+    /// 
+    /// </summary>
     internal class Misc
     {
         internal static int totalRequests = 0;
@@ -27,6 +30,10 @@ namespace TestTaskParserWPF.Core
                     ProxyWorker.requestsWithProxy = 0;
                 }
                 Logger.LogMsg($"Getting page: {url}");
+                if (ProxyWorker.workingProxies[ProxyWorker.selectedProxy] != null)
+                {
+
+                }
                 using (WebClient webClient = new WebClient())
                 {
                     string webPage = "";
@@ -56,6 +63,7 @@ namespace TestTaskParserWPF.Core
             }
             else
             {
+                ProxyWorker.selectedProxy++;
                 return GetWebPage(url);
             }
         }

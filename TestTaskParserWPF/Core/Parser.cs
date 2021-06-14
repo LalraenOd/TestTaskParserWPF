@@ -55,7 +55,7 @@ namespace TestTaskParserWPF
                     string modelPickingCode = childrenElements[counter].QuerySelector("div.List > div.List > div.modelCode").TextContent;
                     ModelData modelData = new ModelData(modelCode, modelName, modelDateRange, modelPickingCode);
                     //send modeldata to db writer
-                    DbWriter.WriteModelData(modelData);
+                    IlcatsDbWriter.WriteModelData(modelData);
                     //start parsing of model equipment
                     ParseEquipment("https://www.ilcats.ru" + modelIdHref, modelData.ModelCode);
                 }
@@ -73,14 +73,14 @@ namespace TestTaskParserWPF
             HtmlParser parser = new HtmlParser();
             IHtmlDocument htmlDocument = parser.ParseDocument(pickingWebPage);
             IElement firstTable = htmlDocument.QuerySelector("tbody");
-            IHtmlCollection<IElement> pickingTable;
+            IHtmlCollection<IElement> pickingTable = null;
             try
             {
                 pickingTable = firstTable.QuerySelectorAll("tbody > tr");
             }
             catch (NullReferenceException)
             {
-                pickingTable = firstTable.QuerySelectorAll("tbody > tr");
+                //pickingTable = firstTable.QuerySelectorAll("tbody > tr");
             }
             //parsing cell headers
             IElement[] pickingTableHeaders = pickingTable[0].QuerySelectorAll("th").ToArray();
@@ -88,7 +88,7 @@ namespace TestTaskParserWPF
             {
                 //parsing table data cells
                 IElement[] cellElements = pickingTable[tableRow].QuerySelectorAll("td").ToArray();
-                DbWriter.WritePickingData(pickingTableHeaders, cellElements, modelCode);
+                IlcatsDbWriter.WritePickingData(pickingTableHeaders, cellElements, modelCode);
                 var pickingGroupLink = "https://www.ilcats.ru" + cellElements[0].QuerySelector("div.modelCode > a").GetAttribute("href");
                 //starting picking groups parser
                 ParseSpareGroups(pickingGroupLink, cellElements[0].TextContent);
@@ -113,7 +113,7 @@ namespace TestTaskParserWPF
                 groupNames.Add(element.TextContent);
                 groupLinks.Add(element.QuerySelector("a").GetAttribute("href"));
             }
-            DbWriter.WriteSparePartGroups(groupNames, pickingEquipment);
+            IlcatsDbWriter.WriteSparePartGroups(groupNames, pickingEquipment);
 
             ParseSpareSubGroups(groupNames, groupLinks);
         }
@@ -139,7 +139,7 @@ namespace TestTaskParserWPF
                     subGroupNames.Add(element.TextContent);
                     spareLinks.Add("https://www.ilcats.ru/" + element.QuerySelector("a").GetAttribute("href"));
                 }
-                DbWriter.WriterPickingSubGroups(groupNames[groupCounter], subGroupNames);
+                IlcatsDbWriter.WriterPickingSubGroups(groupNames[groupCounter], subGroupNames);
                 //starting each spare
                 ParseSpareData(subGroupNames, spareLinks);
             }
@@ -199,7 +199,7 @@ namespace TestTaskParserWPF
                         pickingData.Info = currentPicking.QuerySelector("td > div.usage").TextContent;
                     }
                 }
-                DbWriter.WriteSpares(pickingData);
+                IlcatsDbWriter.WriteSpares(pickingData);
             }
         }
     }
